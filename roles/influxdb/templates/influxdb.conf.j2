@@ -6,6 +6,10 @@ reporting-disabled = false
 {% for key, value in influxdb_conf.items() %}
 [{{key|replace('\\', '')}}]
 {% for key, value in value.items() -%}
-{{ key }} = {{ value }}
+{% if value is string %}
+{{ key }} = "{{ value }}"
+{% else %}
+{{ key }} = {{ value | lower }}
+{% endif %}
 {% endfor %}
 {% endfor %}
