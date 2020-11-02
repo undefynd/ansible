@@ -1,0 +1,51 @@
+---
+
+- name: "install kata container repo key"
+  apt_key:
+    url: "{{ kata_repo_key }}"
+    state: present
+
+- name: "add kata container repo"
+  apt_repository:
+    repo: "{{ kata_repo }}"
+    state: present
+    filename: kata-containers
+
+- name: "install kata container packages"
+  apt:
+    name: "{{ kata_packages }}"
+    state: present
+    update_cache: yes
+
+- name: "check if docker is installed"
+  stat:
+    path: "/usr/bin/docker"
+  register: docker
+
+- name: "create system.d dir for docker"
+  file:
+    path: "/etc/systemd/system/docker.service.d/"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  when: docker.stat.exists
+
+- name: "deploy systemd file"
+  template:
+    src: kata-container.conf
+    dest: /etc/systemd/system/docker.service.d/kata-containers.conf
+    mode: 0644
+    owner: root
+    group: root
+
+- name: "reload daemon"
+  systemd:
+    daemon_reload: yes
+    name: docker.service
+
+- name: "restart docker"
+  systemd:
+    name: docker.service
+    enabled: yes
+    state: restarted

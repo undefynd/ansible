@@ -1,0 +1,17 @@
+---
+
+- name: Download java11
+  get_url:
+    validate_certs: no
+    url: "{{ java11_url }}"
+    dest: "/tmp/{{ java11_package }}"
+    headers:
+      Cookie: "{{ java11_cookie }}"
+  register: java11
+
+- name: unpack java11
+  unarchive:
+    src: "/tmp/{{ java11_package }}"
+    dest: "{{ java11_install_dir }}"
+    remote_src: yes
+  when: java11 is changed

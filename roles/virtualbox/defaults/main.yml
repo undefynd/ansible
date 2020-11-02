@@ -1,0 +1,3 @@
+vrtualbox_key: "https://www.virtualbox.org/download/oracle_vbox_2016.asc"
+virtualbox_repo: "deb https://download.virtualbox.org/virtualbox/debian {{ ansible_distribution_release|lower }} contrib"
+virtualbox_version: "virtualbox-6.1"

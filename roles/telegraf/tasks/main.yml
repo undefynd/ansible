@@ -1,0 +1,32 @@
+---
+
+- name: add repokey for telegraf ubuntu
+  apt_key:
+    url: "{{ telegraf_repo_keys }}"
+    state: present
+
+- name: add telegraf repo ubuntu
+  apt_repository:
+    repo: "{{ telegraf_repo }}"
+    state: present
+    update_cache: yes 
+    filename: influxdb
+
+- name: install telegraf
+  apt:
+    name: telegraf
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  notify:
+    - start telegraf
+
+- name: deploy config
+  template:
+      dest: /etc/telegraf/telegraf.conf
+      src: telegraf.conf.j2
+      owner: root
+      group: root
+      mode: 0644
+  notify:
+    - restart telegraf

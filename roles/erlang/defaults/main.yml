@@ -1,0 +1,7 @@
+---
+
+erlang_repo_key: "https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc"
+erlang_repo: "deb https://packages.erlang-solutions.com/{{ ansible_distribution|lower }} {{ ansible_distribution_release|lower }} contrib"
+
+erlang_packages:
+  - erlang

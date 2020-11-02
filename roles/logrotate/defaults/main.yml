@@ -1,0 +1,26 @@
+logrotate_remove_conf: []
+logrotate_conf_dir: "/etc/logrotate.d/"
+logrotate_default_template: logd.j2
+logrotate_conf:
+     pacemaker:
+     - /var/log/pacemaker.log {
+          compress;
+          dateext;
+          weekly;
+          rotate 99;
+          maxage 365;
+          notifempty;
+          missingok;
+          copytruncate;
+       }
+     test:
+     - /var/log/test.log {
+          compress;
+          dateext;
+          weekly;
+          rotate 99;
+          maxage 365;
+          notifempty;
+          missingok;
+          copytruncate;
+      }

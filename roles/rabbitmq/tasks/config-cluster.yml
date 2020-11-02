@@ -1,0 +1,23 @@
+---
+
+- name: backup old erlang cookie
+  shell: cp -a /var/lib/rabbitmq/.erlang.cookie /var/lib/rabbitmq/.erlang.cookie.old
+  changed_when: false
+  when: ansible_fqdn != rabbitmq_cluster_master_fqdn
+
+- name: remove erlang cookie
+  file: 
+    path: /var/lib/rabbitmq/.erlang.cookie
+    state: absent
+  when: ansible_fqdn != rabbitmq_cluster_master_fqdn
+
+- name: sync erlang cookie
+  synchronize:
+    src: /var/lib/rabbitmq/.erlang.cookie
+    dest: /var/lib/rabbitmq/.erlang.cookie
+    checksum: yes
+  delegate_to: "{{ rabbitmq_cluster_master_fqdn }}"
+  when: rabbitmq_create_cluster and ansible_fqdn != rabbitmq_cluster_master_fqdn
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers

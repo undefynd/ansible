@@ -1,0 +1,8 @@
+kata_branch: "master"
+kata_repo_key: "http://download.opensuse.org/repositories/home:/katacontainers:/releases:/{{ ansible_architecture }}:/{{ kata_branch }}/x{{ ansible_distribution }}_{{ ansible_distribution_version }}/Release.key"
+kata_repo: "deb http://download.opensuse.org/repositories/home:/katacontainers:/releases:/{{ ansible_architecture }}:/{{ kata_branch }}/x{{ ansible_distribution }}_{{ ansible_distribution_version }} /"
+
+kata_packages:
+  - kata-runtime
+  - kata-proxy
+  - kata-shim

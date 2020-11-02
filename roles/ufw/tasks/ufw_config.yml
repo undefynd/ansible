@@ -1,0 +1,10 @@
+---
+
+- name: "deploy ufw config file"
+  template:
+    src: ufw_default.j2
+    dest: /etc/default/ufw
+    owner: root
+    group: root
+    mode: 0644
+  #when: ansible_distribution == "Debian"

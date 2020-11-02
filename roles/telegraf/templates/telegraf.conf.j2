@@ -1,0 +1,8 @@
+#Managed by Ansible
+
+{% for key, value in telegraf_conf.items() %}
+[{{key|replace('\\', '')}}]
+{% for key, value in value.items() -%}
+{{ key }} = {{ value }}
+{% endfor %}
+{% endfor %}

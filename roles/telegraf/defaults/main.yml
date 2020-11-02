@@ -1,0 +1,33 @@
+---
+
+telegraf_repo_key: "https://repos.influxdata.com/influxdb.key"
+telegraf_repo: "deb https://repos.influxdata.com/ubuntu bionic stable"
+
+telegraf_conf:
+  global_tags:
+    dc: "\"us-east-1\""
+  agent:
+    interval: "\"10s\""
+    round_interval: true
+    metric_batch_size: 1000
+    metric_buffer_limit: 10000
+    collection_jitter: "\"0s\""
+    flush_interval: "\"10s\""
+    flush_jitter: "\"0s\""
+    precision: "\"\""
+    hostname: "\"\""
+    omit_hostname: false
+  \[outputs.influxdb\]: {}
+  \[input.cpu\]:
+    percpu: true
+    totalcpu: true
+    collect_cpu_time: false
+    report_active: false
+  \[inputs.disk\]:
+    ignore_fs: ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+  \[input.diskio\]: {}
+  \[inputs.kernel\]: {}
+  \[inputs.mem\]: {}
+  \[inputs.processes\]: {}
+  \[inputs.swap\]: {}
+  \[inputs.system\]: {}

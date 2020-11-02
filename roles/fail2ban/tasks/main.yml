@@ -1,0 +1,25 @@
+---
+- name: install fail2ban
+  apt:
+    name: fail2ban
+    state: latest
+    update_cache: yes
+    cache_valid_time: 86400
+  when: ansible_facts['os_family'] == "Debian"
+  notify:
+    - start fail2ban
+
+- name: install fail2ban RedHat
+  yum:
+    name: fail2ban
+    state: latest
+  when: ansible_facts['os_family'] == "RedHat"
+  notify:
+    - start fail2ban
+
+- name: configure fail2ban
+  template:
+    dest: /etc/fail2ban/jail.d/custom.local
+    src: jail.conf.j2
+  notify:
+    - restart fail2ban

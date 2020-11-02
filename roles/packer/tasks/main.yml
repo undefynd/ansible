@@ -1,0 +1,20 @@
+---
+
+- name: "add repo key"
+  apt_key:
+    url: "{{ hashicorp_gpg_key }}"
+    state: present
+
+- name: "add hashicorp repo"
+  apt_repository:
+    filename: hashicorp_stable
+    repo: "{{ hashicorp_repo }}"
+    update_cache: yes
+    state: present
+
+- name: "install packer"
+  apt:
+    name: "{{ packer_version }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600

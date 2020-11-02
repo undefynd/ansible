@@ -1,0 +1,42 @@
+---
+
+- name: rabbitmq default file
+  template:
+    src: rabbitmq-default.j2
+    dest: /etc/default/rabbitmq-server
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    restart rabbitmq-server
+
+- name: default settings for RabbitMQ AMQP server
+  template:
+    src: rabbitmq-env.conf.j2
+    dest: /etc/rabbitmq/rabbitmq-env.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    restart rabbitmq-server
+
+- name: default settings for RabbitMQ AMQP server
+  template:
+    src: rabbitmq.conf.j2
+    dest: /etc/rabbitmq/rabbitmq.conf
+    owner: root
+    group: root
+    mode: 0644
+  when: rabbitmq_conf is defined
+  notify:
+    restart rabbitmq-server
+
+- name: Enable every plugin in list with existing plugins
+  rabbitmq_plugin:
+    names: "{{ item.name }}"
+    state: "{{ item.state | default('enabled ') }}"
+    new_only: 'yes'
+  loop: "{{ rabbitmq_plugins | flatten(levels=1) }}"
+  ignore_errors: yes
+  notify:
+    restart rabbitmq-server

@@ -1,0 +1,6 @@
+- name: start and enable rabbitmq service
+  service:
+    name: rabbitmq-server
+    state: started
+    enabled: yes
+  when: rabbitmq_install is changed

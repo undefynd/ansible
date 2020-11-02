@@ -1,0 +1,5 @@
+#managed by ansible
+
+{% for key, value in rabbitmq_config.items() %}
+{{ key }} = {{ value }}
+{% endfor %}

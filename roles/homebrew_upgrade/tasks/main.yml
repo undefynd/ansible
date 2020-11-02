@@ -1,0 +1,6 @@
+---
+
+- name: "update homebrew and all packages"
+  homebrew:
+    update_homebrew: yes
+    upgrade_all: yes

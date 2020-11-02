@@ -1,0 +1,17 @@
+---
+
+- name: Download Java14
+  get_url:
+    validate_certs: no
+    url: "{{ java14_url }}"
+    dest: "/tmp/{{ java14_package }}"
+    headers:
+      Cookie: "{{ java14_cookie }}"
+  register: java14
+
+- name: unpack java14
+  unarchive:
+    src: "/tmp/{{ java14_package }}"
+    dest: "{{ java14_install_dir }}"
+    remote_src: yes
+  when: java14 is changed

@@ -1,0 +1,14 @@
+---
+
+- name: Create the configurations for logrotate
+  template:
+    src: "{{ item.value.template | default(logrotate_default_template) }}"
+    dest: "{{ logrotate_conf_dir }}/{{ item.key }}"
+  loop: "{{ logrotate_conf|dict2items }}"
+  when: item.key not in logrotate_remove_conf
+
+- name: "remove configurations for logrotate"
+  file:
+    path: "{{ logrotate_conf_dir }}/{{ item }}"
+    state: absent
+  loop: "{{ logrotate_remove_conf | flatten(levels=1)}}"

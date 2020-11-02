@@ -1,0 +1,50 @@
+---
+
+- name: check if {{ dest_download }} exists
+  stat:
+    path: "{{ dest_download }}"
+  register: go_package
+
+- name: download golang for Linux on amd64
+  get_url:
+     url: "{{ url }}"
+     dest: "{{ dest_download }}"
+     checksum: "{{ checksum }}"
+  register: go_download
+  when: not go_package.stat.exists
+
+- name: unpack golang
+  unarchive:
+    src: "{{ dest_download }}"
+    dest: /usr/local/
+    remote_src: yes
+  when: go_download is changed
+
+- name: get path
+  shell: env | grep PATH 
+  register: path_var
+  ignore_errors: true
+
+- name: Check if $PATH is configured in /etc/environment
+  lineinfile: 
+    dest: /etc/environment
+    regexp: '^PATH='
+    state: absent
+  check_mode: yes
+  register: presence
+
+- name: add $PATH to /etc/environment
+  lineinfile:
+    dest: /etc/environment
+    line: '{{ path_var.stdout }}'
+  register: set_gopath
+  when: presence is not changed
+
+- name: add {{ go_path }} to $PATH
+  lineinfile: 
+    dest: /etc/environment
+    state: present
+    backrefs: yes
+    regexp: 'PATH=(["]*)((?!.*?{{go_path}}).*?)(["]*)$'
+    line: 'PATH=\1\2:{{go_path}}\3'
+  when: presence is changed or set_gopath is changed

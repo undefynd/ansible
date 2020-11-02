@@ -1,0 +1,7 @@
+---
+
+- name: "restart docker"
+  systemd:
+    name: docker.service
+    enabled: yes
+    state: restarted

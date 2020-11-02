@@ -1,0 +1,14 @@
+---
+
+packages:
+  - htop
+  - vim
+  - sysstat
+  - ansible
+  - git
+  - python3-pip
+  - whois
+  - curl
+  - dnsutils
+  - net-tools
+  - ntp

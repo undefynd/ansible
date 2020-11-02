@@ -1,0 +1,36 @@
+---
+
+- name: Download java10
+  get_url:
+    validate_certs: no
+    url: "{{ java10_url }}"
+    dest: "/tmp/{{ java10_package }}"
+    headers:
+      Cookie: "{{ java10_cookie }}"
+  register: java10
+  when: install_jdk
+
+- name: unpack java10
+  unarchive:
+    src: "/tmp/{{ java10_package }}"
+    dest: "{{ java10_install_dir }}"
+    remote_src: yes
+  when: java10 is changed
+
+
+- name: Download java10
+  get_url:
+    validate_certs: no
+    url: "{{ jre10_url }}"
+    dest: "/tmp/{{ jre10_package }}"
+    headers:
+      Cookie: "{{ java10_cookie }}"
+  register: jre10
+  when: install_jre
+
+- name: unpack java10
+  unarchive:
+    src: "/tmp/{{ jre10_package }}"
+    dest: "{{ java10_install_dir }}"
+    remote_src: yes
+  when: jre10 is changed

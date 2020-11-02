@@ -1,0 +1,13 @@
+---
+
+- name: "install packages via homebrew cask"
+  homebrew_cask:
+    name: "{{ cask_pkgs }}"
+    state: present
+  when: cask_pkgs is defined
+
+- name: "remove packages via homebrew cask"
+  homebrew_cask:
+    name: "{{ rm_cask_pkgs }}"
+    state: absent
+  when: rm_cask_pkgs is defined

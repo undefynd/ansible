@@ -1,0 +1,11 @@
+---
+
+- name: "clean up the apt cache"
+  apt:
+    autoclean: true
+  become: true
+
+- name: "remove unused dependencies with apt"
+  apt:
+    autoremove: true
+  become: true

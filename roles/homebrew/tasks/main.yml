@@ -1,0 +1,13 @@
+---
+
+- name: "install packages via homebrew"
+  homebrew:
+    name: "{{ brew_pkgs }}"
+    state: present
+  when: brew_pkgs is defined
+
+- name: "remove packages via homebrew"
+  homebrew:
+    name: "{{ rm_brew_pkgs | default( omit )}}"
+    state: absent
+  when: rm_brew_pkgs is defined

@@ -1,0 +1,4 @@
+java11_url: "https://www.oracle.com/webapps/redirect/signon?nexturl=https://download.oracle.com/otn/java/jdk/11.0.7+8/8c7daf89330c48f0b9e32f57169f7bac/jdk-11.0.7_linux-x64_bin.tar.gz"
+java11_cookie: 'oraclelicense=accept-securebackup-cookie'
+java11_package: "j/jdk-11.0.7_linux-x64_bin.tar.gz"
+java11_install_dir: "/usr/local/bin/"

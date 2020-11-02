@@ -1,0 +1,14 @@
+---
+
+- name: add repokey for rabbitmq ubuntu
+  apt_key:
+    url: "{{ item }}"
+    state: present
+  loop: "{{ rabbitmq_repo_keys }}"
+
+- name: add rabbitmq repo ubuntu
+  apt_repository:
+    repo: "{{ rabbitmq_repo }}"
+    state: present
+    update_cache: yes 
+    filename: rabbitmq 

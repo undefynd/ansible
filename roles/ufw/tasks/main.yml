@@ -1,0 +1,5 @@
+---
+
+- import_tasks: install_ufw.yml
+- import_tasks: ufw_config.yml
+- import_tasks: ufw_rules.yml

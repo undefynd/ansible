@@ -1,0 +1,9 @@
+### Managed by ansible ###
+
+{% for items in users %}
+{% if items.groups is defined %}
+{% for group in items.groups %}
+%{{ group }} ALL=(ALL) NOPASSWD:ALL
+{% endfor %}
+{% endif %}
+{% endfor %}

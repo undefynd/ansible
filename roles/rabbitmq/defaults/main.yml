@@ -1,0 +1,71 @@
+---
+
+rabbitmq_repo_keys: 
+  - "https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc"
+  - "https://www.rabbitmq.com/rabbitmq-release-signing-key.asc"
+  
+rabbitmq_repo: "deb https://dl.bintray.com/rabbitmq-erlang/debian {{ ansible_distribution_release|lower }} erlang-22.x"
+
+rabbitmq_packages:
+  - apt-transport-https
+  - rabbitmq-server
+
+#dict used by template rabbitmq.conf.j2 for rabbitmq.conf file in sysctl syntax 
+rabbitmq_config:
+  listeners.tcp.default: 5672
+  vm_memory_high_watermark.relative: 0.4
+
+#variables for /etc/default/rabbitmq-server used by template rabbitmq-default.j2
+rabbitmq_ulimit_open_files: 1024
+rabbitmq_epmd_port: 4369
+rabbitmq_node_port: 25672
+
+#variable for rabbitmq-env.conf
+rabbitmq_use_longname: 'true'
+
+#vhosts to create
+rabbitmq_vhosts: []
+
+#cluster variables 
+rabbitmq_cluster_master: node01
+rabbitmq_cluster_master_fqdn: node01.vagrant.test
+rabbitmq_create_cluster: True
+cluster_nodes: "{{ groups['rabbitmq'] }}"
+
+# rabbitmq plugins to enable  
+rabbitmq_plugins:
+  - name: rabbitmq_management
+    state: enabled
+  - name: rabbitmq_shovel
+    state: enabled
+  - name: rabbitmq_shovel_management
+    state: enabled
+
+# create rabbitmq users
+rabbitmq_users:
+  - user: admin
+    password: admin
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    tags: administrator
+  - user: robert
+    password: StrongPassword
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    tags: administrator
+
+rabbitmq_users_removed:
+  - guest
+
+rabbitmq_vhosts_queues: {}
+  #- name: 
+  #  vhost:
+  #  user:
+  #  password:
+  # durable: yes
+
+rabbitmq_parameter: {}

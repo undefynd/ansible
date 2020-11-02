@@ -1,0 +1,17 @@
+---
+
+- name: Download Java15
+  get_url:
+    validate_certs: no
+    url: "{{ Java15_url }}"
+    dest: "/tmp/{{ Java15_package }}"
+    headers:
+      Cookie: "{{ Java15_cookie }}"
+  register: java15
+
+- name: unpack Java15
+  unarchive:
+    src: "/tmp/{{ Java15_package }}"
+    dest: "{{ Java15_install_dir }}"
+    remote_src: yes
+  when: java15 is changed

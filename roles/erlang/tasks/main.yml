@@ -1,0 +1,20 @@
+---
+
+- name: add repokey for erlang ubuntu
+  apt_key:
+    url: "{{ erlang_repo_key }}"
+    state: present 
+
+- name: add erlang repo ubuntu
+  apt_repository:
+    repo: "{{ erlang_repo }}"
+    state: present 
+    update_cache: yes 
+    filename: erlang 
+
+- name: install erlang packages
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600 
+    name: "{{ erlang_packages }}"
+    state: latest
