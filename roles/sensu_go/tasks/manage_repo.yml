@@ -1,0 +1,14 @@
+---
+
+- name: "add repo key"
+  apt_key:
+    url: "{{ sensu_gpg_key }}"
+    state: present
+
+- name: "add sensu repo"
+  apt_repository:
+    filename: sensu_stable
+    repo: "{{ item }}"
+    update_cache: yes
+    state: present
+  loop: "{{ sensu_repo_deb }}"

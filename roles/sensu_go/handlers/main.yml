@@ -1,0 +1,22 @@
+---
+
+- name: start sensu-backend
+  service:
+    enabled: yes
+    name: sensu-backend
+    state: started
+
+- name: restart sensu-backend
+  service:
+    name: sensu-backend
+    state: restarted
+
+- name: start sensu agent
+  service:
+    name: sensu-agent
+    state: started
+
+- name: restart sensu agent
+  service:
+    name: sensu-agent
+    state: restarted

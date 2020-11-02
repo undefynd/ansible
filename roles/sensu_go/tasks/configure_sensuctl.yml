@@ -1,0 +1,9 @@
+- name: Get stats of .config/sensu/sensuctl/profile
+  stat:
+    path: ~/.config/sensu/sensuctl/profile
+  register: spf
+
+- name: configure sensuctl
+  shell:
+    cmd: sensuctl configure --url {{ sensu_backend_url }} --username {{ clusterAdminUsername }} --password {{ clusterAdminPassword }} --namespace {{ sensu_namespace }} --format {{ sensu_out_format }} -n
+  when: configure_sensuctl and not spf.stat.exists

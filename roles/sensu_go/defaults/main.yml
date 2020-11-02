@@ -1,0 +1,41 @@
+---
+
+sensu_gpg_key: "https://packagecloud.io/sensu/stable/gpgkey"
+
+sensu_repo_deb:
+  - "deb https://packagecloud.io/sensu/stable/{{ ansible_distribution|lower }}/ {{ ansible_distribution_release|lower }} main"
+  - "deb-src https://packagecloud.io/sensu/stable/{{ ansible_distribution|lower }}/ {{ ansible_distribution_release|lower }} main"
+
+
+
+sensu_packages:
+  - gnupg
+  - curl
+  - debian-archive-keyring
+  - apt-transport-https
+  - sensu-go-backend
+  - sensu-go-cli
+  - sensu-go-agent
+
+
+install_sensu_master: True
+install_sensuctl: True
+
+sensu_backend_conf:
+  state-dir: "/var/lib/sensu/sensu-backend"
+  log-level: "debug" 
+  config-file: "/etc/sensu/backend.yml"
+
+init_sensu_cluster: True
+clusterAdminPassword: admin
+clusterAdminUsername: admin
+
+configure_sensuctl: True
+sensu_authuser: admin
+sensu_authpass: admin
+sensu_backend_url: "http://127.0.0.1:8080"
+sensu_namespace: "default"
+sensu_out_format: "tabular"
+
+sensu_agent_conf:
+  log-level: "debug"

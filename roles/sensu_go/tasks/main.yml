@@ -1,0 +1,12 @@
+---
+
+- import_tasks: "manage_repo.yml"
+- name: "install sensu master"
+  import_tasks: "install_backend.yml"
+  when: install_sensu_master
+- import_tasks: "install_agent.yml"
+- import_tasks: "configure_backend.yml"
+  when: install_sensu_master
+- import_tasks: "configure_sensuctl.yml" 
+  when: install_sensuctl
+- import_tasks: "configure_agent.yml"

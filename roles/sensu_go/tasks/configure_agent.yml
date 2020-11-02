@@ -1,0 +1,11 @@
+---
+
+- name: configure sensu agent
+  template:
+    dest: /etc/sensu/agent.yml 
+    src: agent.yml.j2 
+    owner: root 
+    group: root 
+    mode: 0644
+  notify:
+    - restart sensu agent

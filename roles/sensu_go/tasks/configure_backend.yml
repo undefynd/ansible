@@ -1,0 +1,27 @@
+---
+
+- name: deploy sensu backend conf
+  template:
+    dest: /etc/sensu/backend.yml
+    src: backend.yml.j2
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart sensu-backend
+
+- name: ensure sensu backend is started
+  service:
+    enabled: yes
+    name: sensu-backend
+    state: started
+
+- name: Get stats of .config/sensu/sensuctl/cluster
+  stat:
+    path: ~/.config/sensu/sensuctl/cluster
+  register: scf
+
+- name: init sensu backend
+  shell: 
+    cmd: sensu-backend init --cluster-admin-username {{ clusterAdminUsername }} --cluster-admin-password {{ clusterAdminPassword }}
+  when: init_sensu_cluster and not scf.stat.exists
