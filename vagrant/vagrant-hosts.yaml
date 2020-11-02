@@ -1,0 +1,213 @@
+---
+# |                              ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+machine_ram: &machine_ram "1024" # auto, 1024
+machine_cpu: &machine_cpu "1" # auto, 1
+vagrant_box: &vagrant_box "ubuntu/focal64"
+centos_box: &centos_box "bento/centos-8.2"
+# |
+
+vagrant-vbguest: false
+landrush:
+  enabled: true
+  guest_redirect_dns: true
+  tld: "vagrant.test"
+
+hosts:
+  - name: web01.vagrant.test
+    box: "bento/centos-8.2"
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.10"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: web02.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.11"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: web03.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.12"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: db01.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.13"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: db01.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.14"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: db03.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.15"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: mandodb01.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.16"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: mangodb02.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.17"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: mangodb03.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.18"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: consul01.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.19"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: consul02.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.20"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: consul03.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.21"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: vault01.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.22"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: vault02.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.23"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: vault03.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.24"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: node01.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.22"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: node02.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.23"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: node03.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.24"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
