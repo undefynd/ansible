@@ -1,0 +1,60 @@
+---
+
+influxdb_repo_key: "https://repos.influxdata.com/influxdb.key"
+influxdb_repo: "deb https://repos.influxdata.com/ubuntu bionic stable"
+
+influxdb_conf:
+  meta:
+    dir: "\"/var/lib/influxdb/meta\""
+    retention-autocreate: true
+    logging-enabled: true
+    pprof-enabled: false
+    lease-duration: "\"1m0s\""
+  data:
+    enabled: true
+    dir: "\"/var/lib/influxdb/data\""
+    wal-dir: "\"/var/lib/influxdb/wal\""
+    wal-logging-enabled: true
+  coordinator:
+    write-timeout: "\"10s\""
+    max-concurrent-queries: 0
+    query-timeout: "\"0\""
+    log-queries-after: "\"0\""
+    max-select-point: 0
+    max-select-series: 0
+    max-select-buckets: 0
+  retention:
+    enabled: true
+    check-interval: "\"30m\""
+  shard-precreation:
+    enabled: true
+    check-interval: "\"10m\""
+    advance-period: "\"30m\""
+  monitor:
+    enabled: true
+    bind-address: "\":8083\""
+    https-enabled: false
+    https-certificate: "\"/etc/ssl/influxdb.pem\""
+  http:
+    enabled: true
+    bind-address: "\":8086\""
+    auth-enabled: false
+    log-enabled: true
+    write-tracing: false
+    pprof-enabled: false
+    https-enabled: false
+    https-certificate: "\"/etc/ssl/influxdb.pem\""
+    max-row-limit: 10000
+    realm: "InfluxDB"
+  subsciber:
+    enabled: true
+    http-timeout: "\"30s\""
+  \[collectd\]:
+    enabled: false
+  \[opentsdb\]:
+    enabled: false
+  \[udp\]:
+    enabled: false
+  continuous_queries:
+    log-enabled: true
+    enabled: true

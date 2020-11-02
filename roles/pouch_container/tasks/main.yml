@@ -1,0 +1,26 @@
+---
+
+- name: "add repo key"
+  apt_key:
+    url: "{{ pouch_gpg_key }}"
+    state: present
+
+- name: "add pouch repo"
+  apt_repository:
+    filename: pouch
+    repo: "{{ pouch_repo }}"
+    update_cache: yes
+    state: present
+
+- name: "install pouch"
+  apt:
+    name: "{{ pouch_pkgs }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: start pouch service
+  service:
+    name: pouch
+    enabled: yes
+    state: started

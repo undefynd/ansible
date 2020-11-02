@@ -1,0 +1,22 @@
+---
+
+- name: add repokey for grafana ubuntu
+  apt_key:
+    url: "{{ grafana_repo_keys }}"
+    state: present
+
+- name: add grafana repo ubuntu
+  apt_repository:
+    repo: "{{ grafana_repo }}"
+    state: present
+    update_cache: yes 
+    filename: influxdb
+
+- name: install grafana
+  apt:
+    name: "{{ grafana_pkgs }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  notify:
+    - start grafana

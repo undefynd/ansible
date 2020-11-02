@@ -1,0 +1,41 @@
+---
+
+- name: add repokey for influxdb ubuntu
+  apt_key:
+    url: "{{ influxdb_repo_keys }}"
+    state: present
+
+- name: add influxdb repo ubuntu
+  apt_repository:
+    repo: "{{ influxdb_repo }}"
+    state: present
+    update_cache: yes 
+    filename: influxdb
+
+- name: install influxdb
+  apt:
+    name: influxdb
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: start and enable influxdb service
+  service:
+    name: influxdb
+    state: started
+    enabled: yes
+
+- name: deploy config
+  template:
+      dest: /etc/influxdb/influxdb.conf
+      src: influxdb.conf.j2
+      owner: root
+      group: root
+      mode: 0644
+  notify:
+    - restart influxdb
+
+#- name: Create a user on localhost using default login credentials
+#  influxdb_user:
+#    user_name: username
+#    user_password: StrongPassword

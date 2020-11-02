@@ -1,0 +1,11 @@
+---
+
+pouch_gpg_key: "http://mirrors.aliyun.com/opsx/pouch/linux/debian/opsx@service.alibaba.com.gpg.key"
+pouch_repo: "deb http://mirrors.aliyun.com/opsx/pouch/linux/debian/ pouch stable"
+
+pouch_pkgs:
+  - lxcfs
+  - curl 
+  - apt-transport-https 
+  - ca-certificates 
+  - software-properties-common
