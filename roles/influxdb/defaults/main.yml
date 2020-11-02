@@ -3,6 +3,13 @@
 influxdb_repo_key: "https://repos.influxdata.com/influxdb.key"
 influxdb_repo: "deb https://repos.influxdata.com/ubuntu bionic stable"
 
+influxdb_pkgs:
+  - python3-influxdb
+  - influxdb
+
+influxdb_admin: admin
+influxdb_password: "StrongPassword"
+
 influxdb_conf:
   meta:
     dir: "/var/lib/influxdb/meta"

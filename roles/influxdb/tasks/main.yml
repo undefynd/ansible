@@ -2,7 +2,7 @@
 
 - name: add repokey for influxdb ubuntu
   apt_key:
-    url: "{{ influxdb_repo_keys }}"
+    url: "{{ influxdb_repo_key }}"
     state: present
 
 - name: add influxdb repo ubuntu
@@ -14,7 +14,7 @@
 
 - name: install influxdb
   apt:
-    name: influxdb
+    name: "{{ influxdb_pkgs }}"
     state: latest
     update_cache: yes
     cache_valid_time: 3600
@@ -35,7 +35,7 @@
   notify:
     - restart influxdb
 
-#- name: Create a user on localhost using default login credentials
-#  influxdb_user:
-#    user_name: username
-#    user_password: StrongPassword
+- name: Create a user on localhost using default login credentials
+  influxdb_user:
+    user_name: "{{ influxdb_admin }}"
+    user_password: "{{ influxdb_password }}"
