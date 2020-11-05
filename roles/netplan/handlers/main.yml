@@ -1,0 +1,9 @@
+---
+- name: netplan generate config
+  command: netplan generate
+  notify: netplan apply config
+  become: true
+
+- name: netplan apply config
+  command: netplan apply
+  when: netplan_apply

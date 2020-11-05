@@ -1,8 +1,13 @@
 ---
 
 remove_old_configs: true
+netplan_apply: true
 
-netplan_conf:
+
+netplan_pkgs:
+  - netplan.io
+
+netplan_config:
   50-cloud-init:
     network:
       ethernets:
