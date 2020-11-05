@@ -1,8 +1,12 @@
 #Managed by Ansible
 
 {% for key, value in telegraf_conf.items() %}
-[{{key|replace('\\', '')}}]
+[{{key | regex_replace('^\_','[')| regex_replace('_$',']') }}]
 {% for key, value in value.items() -%}
+{% if value is string %}
+{{ key }} = "{{ value }}"
+{% else %}
 {{ key }} = {{ value }}
+{% endif %}
 {% endfor %}
 {% endfor %}

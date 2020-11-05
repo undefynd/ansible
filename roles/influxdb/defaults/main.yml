@@ -56,11 +56,11 @@ influxdb_conf:
   subsciber:
     enabled: true
     http-timeout: "30s"
-  \[collectd\]:
+  _collectd_:
     enabled: false
-  \[opentsdb\]:
+  _opentsdb_:
     enabled: false
-  \[udp\]:
+  _udp_:
     enabled: false
   continuous_queries:
     log-enabled: true

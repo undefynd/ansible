@@ -1,10 +1,10 @@
-#Managed by Ansible
+#{ ansible_managed }}
 
 reporting-disabled = false
 # hostname = "localhost"
 
 {% for key, value in influxdb_conf.items() %}
-[{{key|replace('\\', '')}}]
+[{{key | regex_replace('^\_','[')| regex_replace('_$',']') }}]
 {% for key, value in value.items() -%}
 {% if value is string %}
 {{ key }} = "{{ value }}"
