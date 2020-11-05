@@ -1,0 +1,69 @@
+---
+
+- name: install easyrsa from ubuntu repos
+  apt:
+    package: easy-rsa
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  register: result
+  until: result is successful
+
+- name: create easyrsa dir
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ ca_user }}"
+    group: "{{ ca_group }}"
+    mode: 0700
+  loop: "{{ dirs }}"
+
+- name: create symlink
+  block:
+  
+    - find:
+        paths: "/usr/share/easy-rsa/"
+        recurse: yes
+      register: find
+
+    - file:
+        src: "{{ item.path }}"
+        dest: "{{ homedir }}/easy-rsa/{{ item.path | basename }}"
+        owner: "{{ ca_user }}"
+        group: "{{ ca_group }}"
+        state: link
+      loop: "{{ find.files }}"
+
+- name: check if pki exists
+  stat:
+    path: "{{ homedir }}/easy-rsa/pki"
+  register: pki
+
+- name: init-pki
+  shell: 
+    cmd: ./easyrsa init-pki
+    chdir: "{{ homedir }}/easy-rsa/"
+  when: not pki.stat.exists
+  register: initpki
+
+- name: deploy vars
+  template:
+    src: vars.j2
+    dest: "{{ homedir }}/easy-rsa/vars"
+
+- name: ensure all files in easy-rsa dir belong to defined user
+  file:
+    path: "{{ homedir }}/easy-rsa/"
+    owner: "{{ ca_user }}"
+    group: "{{ ca_group }}"
+    recurse: yes
+
+- name: Case insensitive password string match
+  expect:
+    command: ./easyrsa build-ca
+    chdir: "{{ homedir }}/easy-rsa/"
+    responses:
+      (?i)Passphrase: "{{ca_password}}"
+      (?i)Name: "{{ ca_common_name }}"
+  when: initpki is changed
+  no_log: true

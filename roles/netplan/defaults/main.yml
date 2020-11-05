@@ -1,0 +1,22 @@
+---
+
+remove_old_configs: true
+
+netplan_conf:
+  50-cloud-init:
+    network:
+      ethernets:
+        enp0s3:
+            dhcp4: true
+            match:
+                macaddress: 02:74:c4:98:7d:21
+            set-name: enp0s3
+      version: 2
+  50-vagrant:
+    network:
+      version: 2
+      renderer: networkd
+      ethernets:
+        enp0s8:
+          addresses:
+          - 192.168.7.19/24

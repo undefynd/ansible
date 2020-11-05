@@ -1,0 +1,21 @@
+---
+
+ca_password: "MySekretPa$$word"
+ca_common_name: "vagrant"
+ca_group: vagrant
+ca_user: vagrant
+
+homedir: "/home/vagrant"
+dirs:
+  - "{{ homedir }}/easy-rsa"
+  - "{{ homedir }}/easy-rsa/x509-types"
+
+easyrsa_vars:
+  EASYRSA_REQ_COUNTRY:  "DE"
+  EASYRSA_REQ_PROVINCE: "Bavaria"
+  EASYRSA_REQ_CITY:     "Munich"
+  EASYRSA_REQ_ORG:      "C0de"
+  EASYRSA_REQ_EMAIL:    "admin@c0de.tech"
+  EASYRSA_REQ_OU:       "Community"
+  EASYRSA_ALGO:         "ec"
+  EASYRSA_DIGEST:         "sha512"

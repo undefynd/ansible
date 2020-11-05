@@ -1,0 +1,5 @@
+#{{ ansible_managed }}
+
+{% for key,value in easyrsa_vars.items() %}
+set_var {{ key }} "{{ value }}"
+{% endfor %}

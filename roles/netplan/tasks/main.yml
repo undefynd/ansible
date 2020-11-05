@@ -1,0 +1,44 @@
+---
+
+- name: check if netplan is installed
+  package_facts:
+    manager: "auto"
+
+- name: install netplan
+  apt:
+    name: netplan
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian' and 'netplan.io' not in ansible_facts.packages
+  register: np
+  until: np is successful
+
+- name: remove all not defined netplan configs
+  block:
+    - find: 
+        paths: "/etc/netplan/"
+        recurse: yes
+      register: find
+
+    - file:
+        path: "{{ item.path }}"
+        state: absent
+      when: not item.path | basename| splitext | first  in netplan_conf
+      loop: "{{ find.files }}"
+  when: remove_old_configs is defined and remove_old_configs
+
+- name: deploy netplan interface config
+  template:
+    src: interface.j2
+    dest: "/etc/netplan/{{ item.key }}.yaml"
+    mode: 0644
+    owner: root
+    group: root
+  loop: "{{ netplan_conf|dict2items }}"
+  when: "'netplan.io' in ansible_facts.packages or np is changed"
+  register: npconf
+
+- name: apply netplan config
+  shell: netplan apply
+  when: npconf is changed 
