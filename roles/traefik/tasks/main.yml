@@ -1,0 +1,90 @@
+---
+
+- name: check if {{ dest_download }} exists
+  stat:
+    path: "{{ dest_download }}"
+  register: traefik_package
+
+- name: download traefik for Linux on amd64
+  get_url:
+     url: "{{ url }}"
+     dest: "{{ dest_download }}"
+     checksum: "{{ checksum }}"
+  register: traefik_download
+  when: not traefik_package.stat.exists
+
+- name: unpack traefik
+  unarchive:
+    src: "{{ dest_download }}"
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: 0755
+    owner: root
+    group: root
+  when: traefik_download is changed
+
+- name: Set cap_net_bind_service+ep on /usr/local/bin/traefik
+  capabilities:
+    path: /usr/local/bin/traefik
+    capability: cap_net_bind_service+ep
+    state: present
+
+- name: create traefik group
+  group:
+    gid: 321
+    name: traefik
+    state: present
+
+- name: create traefik user
+  user:
+    name: traefik
+    group: traefik
+    home: /var/wwww
+    create_home: no
+    shell: /usr/sbin/nologin
+    system: yes
+    uid: 321
+    append: yes
+    groups: 
+      - docker
+
+- name: create traefik dirs
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    group: "{{ item.group }}"
+    owner: "{{ item.owner }}"
+    mode: "{{ item.mode | default(omit) }}"
+    recurse: yes
+  loop: "{{ traefik_dirs | flatten(levels=1) }}"
+
+- name: create traefik log file
+  file:
+    path: /var/log/traefik.log
+    state: touch
+    owner: traefik
+    group: traefik
+
+- name: deploy traefik config
+  template:
+    src: traefik.toml.j2
+    dest: "/etc/traefik/{{ item.key }}.toml"
+  loop: "{{ trafik_configuration: | dict2items }}"
+  notify:
+    - restart traefik
+
+- name: deploy traefik.service file
+  copy:
+    src: traefik.service
+    dest: /etc/systemd/system/traefik.service
+    owner: root
+    group: root
+    mode: 0644
+  register: service
+
+- name: just force systemd to reread configs (2.4 and above)
+  systemd:
+    daemon_reload: yes
+  when: service is changed
+  notify:
+    - start traefik

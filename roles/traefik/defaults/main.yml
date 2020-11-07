@@ -1,0 +1,57 @@
+---
+
+url: "https://github.com/traefik/traefik/releases/download/v2.3.2/traefik_v2.3.2_linux_amd64.tar.gz"
+dest_download: "/tmp/traefik_v2.3.2_linux_amd64.tar.gz"
+checksum: "sha256:8ba32794145705e633808d3c743b3fb6ba0aff011d3c575a2f3986191c4d5426"
+
+traefik_dirs:
+  - path: "/etc/traefik"
+    owner: "root"
+    group: "root"
+  - path: "/etc/treafik/acme"
+    owner: "root"
+    group: "root"
+  - path: "/etc/traefik/dynamic"
+    owner: "traefik"
+    group: "traefik"
+
+trafik_configuration:
+  traefik:
+    global:
+      checkNewVersion: true
+      sendAnonymousUsage: true
+    entryPoints:
+      entryPoints.web:
+        address: ":80"
+      entryPoints.websecure:
+        address: ":443"
+    certificatesResolvers.projectname.acme:
+      email: "johndoe@project-url.com"
+      storage: "/etc/traefik/acme/projectname.json"
+      certificatesResolvers.projectname.acme.httpChallenge:
+        entryPoint: "web"
+    log:
+      level: "DEBUG"
+      filePath: "/var/log/traefik.log"
+    api:
+    ping:
+    providers.docker:
+      endpoint: "unix:///var/run/docker.sock"
+      defaultRule: "Host(`{{ '{{' }} normalize .Name {{ '}}' }}.project-url.com`)"
+      exposedByDefault: false
+    providers.file:
+      directory: "/etc/traefik/dynamic/"
+  redirect:
+    http.routers:
+      http.routers.redirecttohttps:
+        entryPoints: ["web"]
+        middlewares: ["httpsredirect"]
+        rule: "HostRegexp(`{host:.+}`)"
+        service: "noop"
+    http.services:
+      http.services.noop.loadBalancer:
+        http.services.noop.loadBalancer.servers:
+          url: "http://127.0.0.1"
+    http.middlewares:
+      http.middlewares.httpsredirect.redirectScheme:
+        scheme: "https"
