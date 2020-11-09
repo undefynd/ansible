@@ -1,0 +1,11 @@
+#{{ ansible_managed }}
+
+{% for key, value in redis_configuration.items() %}
+{% if value is iterable and (value is not string and value is not mapping) %}
+{% for item in value %}
+{{ key }} {{ item }}
+{% endfor %}
+{% else %}
+{{ key }} {{ value }}
+{% endif %}
+{% endfor %}
