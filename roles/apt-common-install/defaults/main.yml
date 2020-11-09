@@ -4,11 +4,13 @@ packages:
   - htop
   - vim
   - sysstat
-  - ansible
   - git
   - python3-pip
+  - python3
   - whois
   - curl
   - dnsutils
   - net-tools
   - ntp
+  - rsync
+  - lftp
