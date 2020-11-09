@@ -1,1 +1,7 @@
-jails: {}
+fail2ban_config:
+  jail.d/custom.local: # path to file form /etc/fail2ban --> the absolute path will be /etc/fail2ban/jail.d/custom.local
+    sshd: # section in the file for sshd 
+      enabled: true # --> enabled = true
+      port    : "ssh"
+      logpath : "%(sshd_log)s"
+      backend : "%(sshd_backend)s"

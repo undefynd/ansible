@@ -1,0 +1,20 @@
+#{{ ansible_managed }}
+
+{% for key,value in item.value.items() %}
+
+[{{ key }}]
+
+{% if value != None %}
+{% for key, value in value.items() %}
+{% if value != None %}
+{% if value is string %}
+{{ key }} {{ '=' }} {{ value  }}
+{% else %}
+{{ key }} {{ '=' }} {{ value | lower}}
+{% endif %}
+{% else %}
+{{ key }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}

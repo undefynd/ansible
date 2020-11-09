@@ -1,8 +1,0 @@
-#Managed by Ansible
-
-{% for key, value in jails.items() %}
-[{{key}}]
-{% for key, value in value.items() -%}
-{{ key }} = {{ value }}
-{% endfor %}
-{% endfor %}

@@ -17,9 +17,11 @@
   notify:
     - start fail2ban
 
-- name: configure fail2ban
+- name: deploy configuration for fail2ban
   template:
-    dest: /etc/fail2ban/jail.d/custom.local
-    src: jail.conf.j2
+    dest: "/etc/fail2ban/{{ item.key }}"
+    src: config.j2
+  loop: "{{ fail2ban_config | dict2items }}"
+  when: fail2ban_config is defined and fail2ban_config|length>0
   notify:
     - restart fail2ban
