@@ -4,14 +4,14 @@
   get_url:
     validate_certs: no
     url: "{{ Java15_url }}"
-    dest: "/tmp/{{ Java15_package }}"
+    dest: "/var/tmp/{{ Java15_package }}"
     headers:
       Cookie: "{{ Java15_cookie }}"
   register: java15
 
 - name: unpack Java15
   unarchive:
-    src: "/tmp/{{ Java15_package }}"
+    src: "/var/tmp/{{ Java15_package }}"
     dest: "{{ Java15_install_dir }}"
     remote_src: yes
   when: java15 is changed

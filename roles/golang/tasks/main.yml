@@ -1,5 +1,10 @@
 ---
 
+- name: check if go is installed
+  stat:
+    path: /usr/local/go/bin
+  register: go_installed
+
 - name: check if {{ dest_download }} exists
   stat:
     path: "{{ dest_download }}"
@@ -12,6 +17,12 @@
      checksum: "{{ checksum }}"
   register: go_download
   when: not go_package.stat.exists
+
+- name: remove go bin to upgrade it
+  file:
+    path: /usr/local/go
+    state: absent
+  when: go_installed.stat.exists and go_download is changed
 
 - name: unpack golang
   unarchive:
