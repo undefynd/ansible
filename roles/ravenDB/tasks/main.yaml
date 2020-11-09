@@ -1,0 +1,4 @@
+---
+
+- import_tasks: "install_dotnet.yml"
+- import_tasks: "install_ravendb.yml"

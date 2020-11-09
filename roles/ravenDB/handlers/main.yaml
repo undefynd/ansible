@@ -1,0 +1,12 @@
+---
+
+- name: start ravendb
+  systemd:
+    name: ravendb
+    enabled: yes
+    state: started
+
+- name: restart ravendb
+  systemd:
+    name: ravendb
+    state: restarted

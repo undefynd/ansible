@@ -1,0 +1,65 @@
+---
+
+- name: check if {{ ravendb_install_dir }}/RavenDB exists
+  stat:
+    path: "{{ ravendb_install_dir }}/RavenDB"
+  register: ravendb
+
+- name: check if /var/tmp/ravendb_{{ ravendb_version }} exists
+  stat:
+    path: "/var/tmp/ravendb_{{ ravendb_version }}.tar.bz2"
+  register: ravendb_pkg
+
+- name: download ravenDB
+  get_url:
+    url: "{{ ravendb_download_url }}"
+    dest: "/var/tmp/ravendb_{{ ravendb_version }}.tar.bz2"
+  register: ravendb_downloaded
+  when: not ravendb_pkg.stat.exists
+
+- name: stop RavenDB
+  systemd:
+    name: ravendb
+    state: stopped
+  when: ravendb.stat.exists and ravendb_downloaded is changed
+  register: ravendb_stopped
+
+- name: remove RavenDB for upgrade
+  file:
+    path: "{{ ravendb_install_dir }}/RavenDB"
+    state: absent
+  when: ravendb.stat.exists and ravendb_downloaded is changed and ravendb_stopped is changed
+
+- name: unpack ravenDB
+  unarchive:
+    src: "/var/tmp/ravendb_{{ ravendb_version }}.tar.bz2"
+    dest: "{{ ravendb_install_dir }}"
+    remote_src: yes
+    mode: 0755
+    owner: root
+    group: root
+  when: ravendb_downloaded is changed
+
+- name: deploy ravendb config
+  template:
+    src: ravendb_settings.json.j2
+    dest: "{{ ravendb_install_dir }}/RavenDB/Server/settings.json"
+    mode: 0755
+    owner: root
+    group: root
+  notify: restart ravendb
+
+- name: deploy ravendb.service file
+  template:
+    src: ravendb.service.j2
+    dest: /etc/systemd/system/ravendb.service
+    owner: root
+    group: root
+    mode: 0644
+  register: ravendbservice
+
+- name: reload systemctl daemon
+  systemd:
+    daemon_reload: yes
+  when: ravendbservice is changed
+  notify: start ravendb

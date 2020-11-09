@@ -1,0 +1,18 @@
+---
+
+dotnet_deb_repo_pkg: "https://packages.microsoft.com/config/{{ ansible_distribution|lower }}/{{ ansible_distribution_version }}/packages-microsoft-prod.deb"
+dotnet_pkgs:
+  - apt-transport-https
+  - aspnetcore-runtime-3.1
+
+ravendb_download_url: "https://hibernatingrhinos.com/downloads/RavenDB%20for%20Linux%20x64/latest"
+ravendb_install_dir: /usr/local/bin/
+ravendb_version: 4
+ravendb_data_dir: "/tmp/RavenData"
+
+
+ravendb_config:
+  ServerUrl: "http://192.168.7.22:8080"
+  Setup.Mode: "Initial"
+  DataDir: "{{ ravendb_data_dir }}"
+  Security.UnsecuredAccessAllowed: "PrivateNetwork"

@@ -1,0 +1,6 @@
+---
+
+dotnet_deb_repo_pkg: "https://packages.microsoft.com/config/{{ ansible_distribution|lower }}/{{ ansible_distribution_version }}/packages-microsoft-prod.deb"
+dotnet_pkgs:
+  - apt-transport-https
+  - aspnetcore-runtime-3.1
