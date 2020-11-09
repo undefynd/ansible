@@ -11,6 +11,9 @@ DEFAULT_BOX = "ubuntu/bionic64"
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # |
+  # | :::::: Vagrant Plugins
+  # |
   config.vagrant.plugins = ["vagrant-vbguest","landrush"]
 
   if Vagrant.has_plugin?("vagrant-vbguest")
@@ -27,6 +30,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.define server["name"] do |srv|
       srv.vm.box = server["box"] ||= DEFAULT_BOX
 
+      # |
+      # | :::::: Box
+      # |
+
       if server["box_version"]
         srv.vm.box_version = server["box_version"]
       end
@@ -35,13 +42,24 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         srv.vm.box_check_update = server["box_check_update"]
       end
 
+      # | ············································································
+      # | :::::: VM Setup
+      # | ············································································
+
       srv.vm.provider "virtualbox" do |vb|
         vb.name = server["name"]
+
+        if server["gui"]
+          vb.gui      = server["gui"]
+        end
+
+        vb.customize ["modifyvm", :id, "--usb", "off"]
+        vb.customize ["modifyvm", :id, "--usbehci", "off"]
 
         vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
         vb.customize ["modifyvm", :id, "--nictype2", "virtio"]
         vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
-        #vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+        vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         #vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
 
         if server["gui"]
@@ -89,6 +107,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         srv.vm.hostname = server["name"]
       end
 
+      # |
+      # | :::::: Network
+      # |
       if server["private_network"]
         server['private_network'].each do |private_network|
           if private_network["ip_private"] && private_network["auto_config"]
@@ -121,6 +142,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       end
 
+      # |
+      # | :::::: Ports forwarded
+      # |
+
       if server["ports"]
         server["ports"].each do |ports|
             srv.vm.network "forwarded_port",
@@ -129,7 +154,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             auto_correct: true
         end
       end
-
+      # |
+      # | :::::: Folder Sync
+      # |
       if server["syncDir"]
         server['syncDir'].each do |syncDir|
           if syncDir["owner"] && syncDir["group"]
@@ -148,20 +175,28 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       end
 
-# |
-# | Provisioning
-# |
+# | ············································································
+# | : Provisioning
+# | ············································································
+      # |
+      # | :::::: Provisions - Bash
+      # |
       if server["bash"]
         srv.vm.provision :shell, :path => server["bash"]
       end
 
+      # |
+      # | :::::: Provisions - files
+      # |
       if server["files"]
         server["files"].each do |files|
           srv.vm.provision "file", source: files["source"], destination: files["destination"]
           srv.vm.boot_timeout = 240
         end
       end
-
+      # |
+      # | :::::: Provisions - Puppet
+      # |
       if server["puppet"]
         srv.vm.provision :puppet do |puppet|
           if server["puppet"]["modules"]
@@ -175,7 +210,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           end
         end
       end
-
+      # |
+      # | :::::: Provisions - Asible
+      # |
       if server["ansible"]
         srv.vm.provision :ansible do |ansible|
           if server["ansible"]["verbose"]
@@ -195,7 +232,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           end
         end
       end
-
+      # |
+      # | :::::: Provisions - Salt
+      # |
       if server["salt"]
         srv.vm.provision :salt do |salt|
           if server["salt"]["install_master"]
