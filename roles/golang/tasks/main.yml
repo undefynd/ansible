@@ -2,18 +2,18 @@
 
 - name: check if go is installed
   stat:
-    path: /usr/local/go/bin
+    path: "{{ go_path }}"
   register: go_installed
 
-- name: check if {{ dest_download }} exists
+- name: check if {{ dest_download }}/{{ url | basename }} exists
   stat:
-    path: "{{ dest_download }}"
+    path: "{{ dest_download }}/{{ url | basename }}"
   register: go_package
 
 - name: download golang for Linux on amd64
   get_url:
      url: "{{ url }}"
-     dest: "{{ dest_download }}"
+     dest: "{{ dest_download }}/{{ url | basename }}"
      checksum: "{{ checksum }}"
   register: go_download
   when: not go_package.stat.exists
@@ -26,7 +26,7 @@
 
 - name: unpack golang
   unarchive:
-    src: "{{ dest_download }}"
+    src: "{{ dest_download }}/{{ url | basename }}"
     dest: /usr/local/
     remote_src: yes
   when: go_download is changed
