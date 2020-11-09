@@ -184,7 +184,7 @@ hosts:
     ram: *machine_ram
     cpus: *machine_cpu
     private_network:
-      - ip_private: "192.168.7.22"
+      - ip_private: "192.168.7.25"
         auto_config: true
     files:
       - source: "~/.ssh/id_rsa.pub"
@@ -195,7 +195,7 @@ hosts:
     ram: *machine_ram
     cpus: *machine_cpu
     private_network:
-      - ip_private: "192.168.7.23"
+      - ip_private: "192.168.7.26"
         auto_config: true
     files:
       - source: "~/.ssh/id_rsa.pub"
@@ -206,7 +206,7 @@ hosts:
     ram: *machine_ram
     cpus: *machine_cpu
     private_network:
-      - ip_private: "192.168.7.24"
+      - ip_private: "192.168.7.27"
         auto_config: true
     files:
       - source: "~/.ssh/id_rsa.pub"

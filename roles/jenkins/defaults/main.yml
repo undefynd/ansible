@@ -1,0 +1,16 @@
+---
+
+jenkins_repo_key: "https://pkg.jenkins.io/debian-stable/jenkins.io.key"
+jenkins_repo: "deb http://pkg.jenkins.io/debian-stable binary/"
+jenkins_pkgs: "jenkins"
+jenkins_admin_username: "admin"
+jenkins_admin_password: "admin12345"
+jenkins_admin_url: "http://localhost:8080"
+
+jenkins_plugins:
+  token-macro:
+    state: enabled
+  build-pipeline-plugin:
+    version: "1.4.9"
+    pinned: no
+    state: enabled

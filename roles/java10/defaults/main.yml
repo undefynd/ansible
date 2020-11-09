@@ -4,7 +4,7 @@ install_jdk: True
 java10_url: "https://www.oracle.com/webapps/redirect/signon?nexturl=https://download.oracle.com/otn/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jdk-10.0.2_linux-x64_bin.tar.gz"
 java10_cookie: 'oraclelicense=accept-securebackup-cookie'
 java10_package: "jdk-10.0.2_linux-x64_bin.tar.gz"
-java10_install_dir: "/usr/local/bin/"
+java10_install_dir: "/usr/bin/"
 
 install_jre: False
 jre10_url: "https://www.oracle.com/webapps/redirect/signon?nexturl=https://download.oracle.com/otn/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jre-10.0.2_linux-x64_bin.tar.gz"

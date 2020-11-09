@@ -1,4 +1,4 @@
 java15_url: "https://download.oracle.com/otn/java/jdk/14.0.1+7/664493ef4a6946b186ff29eb326336a2/jdk-14.0.1_linux-x64_bin.tar.gz"
 java15_cookie: 'oraclelicense=accept-securebackup-cookie'
 java15_package: "jdk-14.0.1_linux-x64_bin.tar.gz"
-java15_install_dir: "/usr/local/bin/"
+java15_install_dir: "/usr/bin/"
