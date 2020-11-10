@@ -1,0 +1,15 @@
+#{{ ansible_managed}}
+
+{% for key,value in item.value.items() %}
+[{{ key| regex_replace('^\_','[')| regex_replace('_$',']') }}]
+{% if value != None %}
+{% for key, value in value.items() %}
+{% if value is string %}
+{{ key|indent(2, true) }}  = "{{ value }}"
+{% else %}
+{{ key|indent(2, true) }}  = {{ value | lower }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% endfor %}

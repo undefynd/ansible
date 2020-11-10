@@ -1,0 +1,21 @@
+---
+
+pkgs:
+  - git
+
+gitea_url: "https://dl.gitea.io/gitea/1.12.5/gitea-1.12.5-linux-amd64"
+gitea_dir: /usr/local/bin
+
+gitea_config:
+  app:
+   mailer:
+    ENABLED       : true
+    FROM          : gitea@mydomain.com
+    MAILER_TYPE   : sendmail
+    SENDMAIL_PATH : /usr/sbin/sendmail
+  server:
+    PROTOCOL  : https
+    ROOT_URL  : https://git.example.com:3000/
+    HTTP_PORT : 3000
+    CERT_FILE : cert.pem
+    KEY_FILE  : key.pem

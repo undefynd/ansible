@@ -1,0 +1,76 @@
+---
+
+- name: "install dependencies for Ubuntu or Debian"
+  apt:
+    name: "{{ pkgs }}"
+    state: present
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: "download gitea"
+  get_url:
+    url: "{{ gitea_url }}"
+    dest: "{{ gitea_dir }}/gitea"
+    mode: 0755
+    owner: root
+    group: root
+
+- name: "create git group"
+  group:
+    name: git
+    state: present
+
+- name: "Create Git User"
+  user:
+    name: git
+    shell: /bin/bash
+    group: git
+    create_home: yes
+    system: yes
+    comment: Git Version Control
+
+- name: "Create gitea directorys"
+  file:
+    path: "/var/lib/gitea/{{ item }}"
+    state: directory
+    mode: 0755
+    owner: git
+    group: git
+  loop:
+    - "/var/lib/gitea/"
+    - "/var/lib/gitea/custom"
+    - "/var/lib/gitea/data"
+    - "/var/lib/gitea/log"
+
+- name: "Create gitea config directory"
+  file:
+    path: /etc/gitea
+    state: directory
+    mode: 0770
+    owner: root
+    group: git
+
+- name: deploy gitea service file
+  copy:
+    src: gitea.service
+    dest: /etc/systemd/system/gitea.service
+    owner: root
+    group: root
+    mode: 0644
+  register: service
+
+- name: reload systemctl daemon
+  systemd:
+    daemon_reload: yes
+  when: service is changed
+  notify: start gitea
+
+- name: deploy gitea app.ini config file
+  template:
+    src: app.j2
+    dest: "/etc/gitea/{{ item.key }}.ini"
+    owner: root
+    group: git
+  loop: "{{ gitea_config | dict2items }}"
+  when: gitea_config is defined
+  notify:
+    - restart gitea
