@@ -1,0 +1,9 @@
+#{{ ansible_managed }}
+
+{% for key,value in zookeeper_config.items() %}
+{% if value is string %}
+{{ key }}={{ value }}
+{% else %}
+{{ key }}={{ value  |lower}}
+{% endif %}
+{% endfor %}

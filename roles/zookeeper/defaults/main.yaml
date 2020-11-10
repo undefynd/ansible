@@ -1,0 +1,10 @@
+---
+
+zookeeper_user_passwd: "reallyStrongPassword"
+zookeeper_download_url: "https://mirrors.estointernet.in/apache/zookeeper/zookeeper-3.6.2/apache-zookeeper-3.6.2-bin.tar.gz"
+
+zookeeper_config:
+  tickTime: 2500
+  dataDir: /zookeeper
+  clientPort: 2181
+  maxClientCnxns: 80

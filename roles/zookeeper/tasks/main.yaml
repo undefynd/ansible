@@ -1,0 +1,88 @@
+---
+
+- name: check if java is installed
+  stat:
+    path: "{{ java_path | default('/usr/bin/java')}}"
+  register: java
+
+- name: "install default-jdk when java isn't installed"
+  apt:
+    name: default-jdk
+    state: present
+  when: not java.stat.exists
+
+- name: "check if zookeeper is downloaded"
+  stat:
+    path: "/var/tmp/{{ zookeeper_download_url | basename }}"
+  register: zookeeper
+
+- name: "download zookeeper"
+  get_url:
+    url: "{{ zookeeper_download_url }}"
+    dest: "/var/tmp/{{ zookeeper_download_url | basename }}"
+
+- name: create zookeeper group
+  group:
+    name: zookeeper
+
+- name: create zookeeper user
+  user:
+    name: zookeeper
+    group: zookeeper
+    groups: [sudo]
+    append: yes
+    create_home: yes
+    shell: /bin/bash
+    password: "{{ zookeeper_user_passwd }}"
+
+- name: unzip zookeeper
+  unarchive:
+    src:  "/var/tmp/{{ zookeeper_download_url | basename }}"
+    dest: "/opt/"
+    remote_src: yes
+    mode: 0755
+    owner: zookeeper
+    group: zookeeper
+
+- name: check if /opt/zookeeper exists
+  stat:
+    path: /opt/zookeeper
+  register: zkdir
+
+- name: move zookeeper binary files
+  shell: "mv {{ zookeeper_download_url | basename |splitext | first |splitext | first }} zookeeper"
+  args:
+    chdir: /opt
+  when: not zkdir.stat.exists
+  
+
+- name: deploy zookeeper config
+  template:
+    src: zoo.cfg.j2
+    dest: /opt/zookeeper/conf/zoo.cfg
+    owner: zookeeper
+    group: zookeeper
+    mode: 0644
+  notify: restart zookeeper
+
+- name: deploy zookeeper.service file
+  copy:
+    src: zookeeper.service
+    dest: /etc/systemd/system/zookeeper.service
+  register: service
+
+- name: reload service daemon
+  systemd:
+    daemon-reload: yes
+  when: service is changed
+
+- name: set permissions for zookeeper datadir and /opt/zookeeper
+  file:
+    path: "{{ item }}"
+    owner: zookeeper
+    group: zookeeper
+    recurse: yes
+  loop:
+    - "/opt/zookeeper"
+    - /zookeeper
+  notify: start zookeeper
