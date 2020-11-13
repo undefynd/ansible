@@ -13,6 +13,17 @@ landrush:
   tld: "vagrant.test"
 
 hosts:
+  - name: ca.vagrant.test
+    box: "ubuntu/focal64"
+    box_check_update: false
+    ram: *machine_ram
+    cpus: *machine_cpu
+    private_network:
+      - ip_private: "192.168.7.5"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"
   - name: web01.vagrant.test
     box: "bento/centos-8.2"
     box_check_update: false
@@ -79,7 +90,7 @@ hosts:
     files:
       - source: "~/.ssh/id_rsa.pub"
         destination: "/home/vagrant/.ssh/authorized_keys"
-  - name: mandodb01.vagrant.test
+  - name: mongodb01.vagrant.test
     box: *vagrant_box
     box_check_update: false
     ram: *machine_ram
@@ -90,7 +101,7 @@ hosts:
     files:
       - source: "~/.ssh/id_rsa.pub"
         destination: "/home/vagrant/.ssh/authorized_keys"
-  - name: mangodb02.vagrant.test
+  - name: mongodb02.vagrant.test
     box: *vagrant_box
     box_check_update: false
     ram: *machine_ram
@@ -101,7 +112,7 @@ hosts:
     files:
       - source: "~/.ssh/id_rsa.pub"
         destination: "/home/vagrant/.ssh/authorized_keys"
-  - name: mangodb03.vagrant.test
+  - name: mongodb03.vagrant.test
     box: *vagrant_box
     box_check_update: false
     ram: *machine_ram

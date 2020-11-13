@@ -17,6 +17,7 @@ mandodb03.vagrant.test
 node01.vagrant.test
 node02.vagrant.test
 node03.vagrant.test
+ca.vagrant.test
 
 [consul]
 consul01.vagrant.test
