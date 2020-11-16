@@ -1,0 +1,14 @@
+#{{ ansible_managed }}
+
+{% for key, value in haproxy_conf.items() %}
+{{ key }}
+{% for key, value in value.items() %}
+{% if value is iterable and (value is not string and value is not mapping) %}
+{% for item in value %}
+{{ key |indent(7, true) }} {{ item }}
+{% endfor %}
+{% else %}
+{{ key |indent(7, true)}} {{ value }}
+{% endif %}
+{% endfor %}
+{% endfor %}

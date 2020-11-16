@@ -1,0 +1,4 @@
+---
+- name: set hostname debian
+  hostname:
+    name: "{{ hostname }}"

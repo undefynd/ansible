@@ -1,0 +1,22 @@
+---
+
+- name: install haproxy ubuntu
+  apt:
+    name: haproxy
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: deploy config
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart haproxy
+
+- name: enable haproxy
+  systemd:
+    name: haproxy
+    enabled: yes
