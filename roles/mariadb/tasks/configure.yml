@@ -1,0 +1,65 @@
+---
+
+- name: create conf.d
+  file:
+    path: "{{ mariadb_conf_dir }}/{{ item }}"
+    state: directory
+    mode: 0755
+  loop:
+    - mariadb.conf.d
+    - conf.d
+  notify:
+    - restart mariadb
+
+- name: deploy /etc/debian-start
+  copy:
+    src: debian-start
+    dest: "{{ mariadb_conf_dir }}/debian-start"
+    owner: root
+    group: root
+    mode: 0755
+  notify:
+    - restart mariadb
+
+- name: deploy mariadb.cnf my.cnf.fallback
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mariadb_conf_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - mariadb.cnf
+    - my.cnf.fallback
+  notify:
+    - restart mariadb
+
+- name: create my.cnf link
+  file:
+    src: /etc/alternatives/my.cnf
+    dest: "{{ mariadb_conf_dir }}/my.cnf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: deploy configs in /etc/mysql/conf.d
+  template:
+    src: config.j2
+    dest: "{{ mariadb_conf_dir }}/conf.d/{{ item.key }}.cnf"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ confd | dict2items }}" 
+  notify:
+    - restart mariadb
+
+- name: deploy configs in /etc/mysql/mariadb.conf.d
+  template:
+    src: config.j2
+    dest: "{{ mariadb_conf_dir }}/mariadb.conf.d/{{ item.key }}.cnf"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ mariadb_confd | dict2items }}"
+  notify:
+    - restart mariadb

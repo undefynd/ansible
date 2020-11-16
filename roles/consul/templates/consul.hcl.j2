@@ -1,0 +1,21 @@
+# Managed by Ansible
+
+{% for key, value in consul_server.items() %}
+{% if value is string %}
+{% if '{' in value %}
+{% if '-{' in value %}
+{{ key }} {{ value|replace('-{','{') }}
+{% else %}
+{{ key }} = {{ value }}
+{% endif %}
+{% else %}
+{{ key }} = "{{ value }}"
+{% endif %}
+{% else %}
+{% if value is boolean %}
+{{ key }} = {{ value | replace('\'','"')|lower}}
+{% else %}
+{{ key }} = {{ value | replace('\'','"')}}
+{% endif %}
+{% endif %}
+{% endfor %}

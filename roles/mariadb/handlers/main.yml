@@ -1,0 +1,7 @@
+---
+
+- name: restart mariadb
+  systemd:
+    name: mariadb
+    state: restarted
+    enabled: yes

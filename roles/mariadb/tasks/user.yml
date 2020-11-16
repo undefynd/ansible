@@ -1,0 +1,22 @@
+---
+
+- name: "remove all anonymous user"
+  mysql_user:
+    name: ''
+    host_all: yes
+    state: absent
+
+- name: "create db users"
+  mysql_user:
+    login_host: "{{ login_host | default(mariadb_root_password|default(omit)) }}"
+    login_port: "{{ login_port | default(omit) }}"
+    login_user: "{{ login_user | default(omit) }}"
+    login_unix_socket: "{{ login_socket | default(omit) }}"
+    login_password: "{{ login_password | default(omit) }}"
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    priv: "{{ item.priv }}"
+    encrypted: "{{ item.encrypted | default('yes') }}"
+    host: "{{ item.host | default('localhost') }}"
+    state: "{{ item.state | default(present) }}"
+  loop: "{{ db_users|flatten(levels=1) }}"

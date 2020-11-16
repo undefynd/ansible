@@ -1,0 +1,28 @@
+---
+
+- name: check if /etc/mysql/secured exists
+  stat:
+    path: /etc/mysql/secured
+  register: secured
+
+- name: install secure installation of mariadb
+  expect:
+    command: mysql_secure_installation
+    responses:
+      (.*)Enter current password for root \(enter for none\)(.*): "\n"
+      (.*)Set root password\? \[Y/n\](.*): 'Y'
+      (.*)New password:(.*): '{{ mariadb_root_password }}'
+      (.*)Re-enter new password:(.*): '{{ mariadb_root_password }}'
+      (.*)Remove anonymous users\? \[Y/n\](.*): 'Y'
+      (.*)Disallow root login remotely\? \[Y/n\](.*): 'Y'
+      (.*)Remove test database and access to it\? \[Y/n\](.*): 'Y'
+      (.*)Reload privilege tables now\? \[Y/n\](.*): 'Y'
+  no_log: true
+  register: secure_installation
+  when: not secured.stat.exists
+
+- name: create file so secure installation doesn't run all the time when 
+  file:
+    path: "/etc/mysql/secured"
+    state: touch
+  when: secure_installation is changed

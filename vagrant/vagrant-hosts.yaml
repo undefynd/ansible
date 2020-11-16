@@ -7,6 +7,14 @@ centos_box: &centos_box "bento/centos-8.2"
 # |
 
 vagrant-vbguest: false
+
+hostmanager:
+  enabled: true
+  manage_host: true
+  manage_guest: true
+  ignore_private_ip: false
+  include_offline: true
+
 landrush:
   enabled: true
   guest_redirect_dns: true

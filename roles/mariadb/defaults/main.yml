@@ -1,0 +1,72 @@
+---
+
+mariadb_pkgs:
+  - mariadb-server
+  - python3-pymysql
+  - python-pymysql-doc
+
+secure_install: true
+mariadb_root_password: '123456'
+mariadb_conf_dir: /etc/mysql
+
+confd:
+  mysql:
+    mysql: Null
+  mysqldump: #filename
+    mysqldump: #section name :
+      quick:  Null # content
+      quote-names: Null
+      max_allowed_packet: 16M
+
+mariadb_confd:
+  50-client:
+    client:
+      socket: /var/run/mysqld/mysqld.sock
+    client-mariadb: Null
+  50-mysql-clients:
+    mysql:
+      default-character-set: utf8mb4
+    mysql_upgrade: Null
+    mysqladmin: Null
+    mysqlbinlog: Null
+    mysqlcheck: Null
+    mysqldump: Null
+    mysqlimport: Null
+    mysqlshow: Null
+    mysqlslap: Null
+  50-mysqld_safe:
+    mysqld_safe:
+      socket: /var/run/mysqld/mysqld.sock
+      nice: 0
+      skip_log_error: Null
+      syslog: Null
+  50-server:
+    server: Null
+    mysqld:
+      user: mysql
+      pid-file: /run/mysqld/mysqld.pid
+      socket: /run/mysqld/mysqld.sock
+      basedir: /usr
+      datadir: /var/lib/mysql
+      tmpdir: /tmp
+      lc-messages-dir: /usr/share/mysql
+      bind-address: 127.0.0.1
+      query_cache_size: 16M
+      log_error: /var/log/mysql/error.log
+      expire_logs_days: 10
+      character-set-server: utf8mb4
+      collation-server: utf8mb4_general_ci
+    embedded: Null 
+    mariadb: Null
+    mariadb-10.3: Null
+
+databases:
+  - name: newdb
+    state: present
+
+db_users: {}
+
+dumpall: true
+replica_role: master #slave
+mysql_master: node01.vagrant.test
+mysql_slave: node02.vagrant.test

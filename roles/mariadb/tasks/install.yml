@@ -1,0 +1,11 @@
+---
+
+- name: "install mariadb-server and -client"
+  apt:
+    name: "{{ mariadb_pkgs }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  register: imdb
+  when: ansible_os_family == 'Debian'
+  until: imdb is successful

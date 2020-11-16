@@ -1,0 +1,88 @@
+---
+
+- name: "add repo key"
+  apt_key:
+    #url: "{{ hashicorp_gpg_key }}"
+    data: "{{ lookup('file', 'hashicorp.asc') }}"
+    state: present
+
+- name: "add hashicorp repo"
+  apt_repository:
+    filename: hashicorp_stable
+    repo: "{{ hashicorp_repo }}"
+    update_cache: yes
+    state: present
+
+- name: "install consul"
+  apt:
+    name: "{{ consul_version }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  register: result
+  until: result is successful
+
+- name: configure consul server
+  block:
+
+  - name: deploy ssl certs
+    copy:
+      src: "{{ dc }}/{{ item }}"
+      dest: "{{consul_conf_dir}}{{ item }}"
+      owner: consul
+      group: consul
+      mode: 0644
+    loop: "{{ certs_to_deploy }}"
+    when: ssl_true
+
+  - name: Create the configurations for consul
+    template:
+      src: consul.hcl.j2
+      dest: "{{ consul_conf_dir }}/consul.hcl"
+      owner: consul
+      group: consul
+      mode: 0644
+    notify:
+      - restart consul
+  when: ansible_fqdn in groups['consul']
+
+- name: deploy service file
+  copy:
+    src: consul.service
+    dest: /usr/lib/systemd/system/consul.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: ensure consul is started
+  service:
+    name: consul
+    state: started
+    enabled: true
+
+- name: bootstrap acl and save them to ansible node
+  block:
+    - name: check if acl-bootstrap exists
+      stat:
+        path: /tmp/acl-bootstrap
+      register: aclbootstrap
+
+    - name: bootstrap acls
+      shell: consul acl bootstrap >> /tmp/acl-bootstrap
+      register: acl_created
+      when: not aclbootstrap.stat.exists and ansible_fqdn ==  groups['consul'][0]
+
+    - name: download bootstrap to ansible node
+      fetch:
+        dest: /tmp/acl-bootstrap-{{ inventory_hostname }}
+        src: /tmp/acl-bootstrap
+        flat: yes
+      when: acl_created is changed
+    
+    - name: create empty acl bootstrap
+      file:
+        state: touch
+        dest: /tmp/acl-bootstrap
+      when: not aclbootstrap.stat.exists
+      
+  when: bootstrap_acl and acl_token is not defined and ansible_fqdn in groups['consul']
