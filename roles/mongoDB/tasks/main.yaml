@@ -1,0 +1,51 @@
+---
+- name: "install mongodb repo key"
+  apt_key:
+    url: "{{ mongodb_repo_key }}"
+    state: present
+
+- name: "add mongodb repo"
+  apt_repository:
+    repo: "{{ mongodb_repo }}"
+    state: present
+    filename: mongodb
+
+- name: "install mongodb packages"
+  apt:
+    name: "{{ mongodb_packages }}"
+    state: present
+    update_cache: yes
+
+- name: deploy config
+  template:
+    src: mongod.conf.j2
+    dest: /etc/mongod.conf
+
+- name: start mongodb
+  systemd:
+    name: mongod
+    state: started
+    enabled: yes
+
+- name: create admin user
+  mongodb_user:
+    database: "{{ mongodb_auth_db | default('admin')"
+    name: "{{ mongodb_admin_user | default('admin') }}"
+    password: "{{ mongodb_admin_passwd }}"
+    roles: userAdminAnyDatabase
+    state: present
+
+- name: depploy modified mongod.service file
+  copy:
+    src: mongod.service
+    dest: /lib/systemd/system/mongod.service
+    mode: 0644
+    owner: root
+    group: root
+  register: service
+
+- name: reload systemd daemon
+  systemd:
+    daemon_reload: yes
+  when: service is changed
+  notify: restart mongodb

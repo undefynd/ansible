@@ -1,0 +1,36 @@
+---
+mongodb_repo_key: "https://www.mongodb.org/static/pgp/server-4.4.asc"
+mongodb_repo: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/{{ ansible_distribution | lower }} {{ ansible_distribution_release|lower }}/mongodb-org/4.4 multiverse"
+mongodb_packages: mongodb-org
+
+mongodb_auth_db: admin
+mongodb_admin_user: admin
+mongodb_admin_passwd: "reallyStrongPassword"
+
+mongodb_conf:
+  storage:
+    dbPath: "/data/db"
+    engine: "wiredTiger"
+    wiredTiger:
+      engineConfig:
+        cacheSizeGB: 8
+      collectionConfig:
+        blockCompressor: snappy
+  systemLog:
+    destination: file
+    path: "/var/log/mongodb.log"
+    logAppend: true
+    timeStampFormat: iso8601-utc
+  replication:
+    oplogSizeMB: 10240
+    replSetName: "rs1"
+  processManagement:
+    fork: true
+  net:
+    bindIp: "192.0.2.1,127.0.0.1"
+    port: 27018
+  security:
+    keyFile: "/data/key/rs1.key"
+    authorization: "enabled"
+  sharding:
+    clusterRole: "shardsvr"
