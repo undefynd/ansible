@@ -1,0 +1,6 @@
+---
+
+- import_tasks: "install_stepca.yml"
+- import_tasks: "create_system_user.yml"
+- import_tasks: "config_stepca.yml"
+- import_tasks: "init_stepca.yml"

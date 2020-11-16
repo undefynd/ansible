@@ -1,0 +1,15 @@
+[Unit]
+Description=step-ca
+After=syslog.target network.target
+
+[Service]
+Environment="STEPPATH={{ ca_dir |default('/etc/step-ca') }}"
+User=step
+Group=step
+ExecStart=/bin/sh -c '/usr/bin/step-ca {{ ca_dir |default('/etc/step-ca') }}/config/ca.json --password-file={{ ca_dir |default('/etc/step-ca') }}/pwd >> /var/log/step-ca/output.log 2>&1'
+Type=simple
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

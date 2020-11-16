@@ -1,0 +1,30 @@
+---
+dependencies_pkgs:
+  - expect
+
+deb_pkgs:
+  - "https://github.com/smallstep/certificates/releases/download/v0.15.5/step-certificates_0.15.5_amd64.deb"
+  - "https://github.com/smallstep/cli/releases/download/v0.15.3/step-cli_0.15.3_amd64.deb"
+
+linux_pkgs:
+  - "https://github.com/smallstep/certificates/releases/download/v0.15.5/step-certificates_linux_0.15.5_amd64.tar.gz"
+  - "https://github.com/smallstep/cli/releases/download/v0.15.3/step_linux_0.15.3_amd64.tar.gz"
+
+init_ca: true # set to true if step ca init should be run
+ca_default_provisioner_name: "ca@vagrant.test" # same as provisioner but is needed to remove the default provisioner of JWK
+ca_intermediate_passwd: "4dC]rM^}_$iP/byM~axQ}J9hC7H1{0auL" # password for the intermediate key, required since by default root_ca.key and intermediate.key have the same password, recomanded for production
+ca_jwk_passwd: "3oL(_%h,~)-vS@*`beiU>nU,e;!4_eKq~" # password for the JWK provider too, recomanded for production
+ca_password: "'`1hgs=zq:aEj5vY>%I7DQwR=e}:.%Yff" # password for the init process and root_ca.key
+ca_dir: "/etc/step-ca" # directory where step-ca should create the ca in.
+acme: true # set to true if you want to have the acme provider activated
+remove_default_JWK: true # set to true to change the default JWK provider, recomanded for production
+update_intermediate_password: true # set to true to change intermediate password from default
+
+# list of options for step init command
+step_ca_init:
+  - 'name="default ca"'
+  - "dns=ca.vagrant.test,192.168.7.25,127.0.0.1,localhost"
+  - "address=192.168.7.25:443"
+  - "provisioner=ca@vagrant.test"
+  - "with-ca-url=node01.vagrant.test"
+  - "password-file=/etc/step-ca/pwd"

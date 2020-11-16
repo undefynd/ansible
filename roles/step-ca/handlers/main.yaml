@@ -1,0 +1,7 @@
+---
+
+- name: start step-ca
+  systemd:
+    enabled: yes
+    state: started
+    name: step-ca

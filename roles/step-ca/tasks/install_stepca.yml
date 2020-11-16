@@ -1,0 +1,40 @@
+---
+
+- name: RedHat install of step-ca
+  block:
+
+  - name: "download step-ca"
+    get_url:
+      url: "{{ item }}"
+      dest: "/var/tmp/{{ item | basename }}" 
+      mode: 0755
+      owner: root
+      group: root
+    loop: "{{ linux_pkgs }}"
+
+  - name: unzip and move step-ca
+    unarchive:
+      src:  "/var/tmp/{{ item | basename }}"
+      dest: "/usr/bin/"
+      remote_src: yes
+    loop: "{{ linux_pkgs }}"
+
+  when: ansible_os_family == 'RedHat'
+
+- name: "install step-ca deb package"
+  apt:
+    deb: "{{ item }}"
+  loop: "{{ deb_pkgs }}"
+  when: ansible_os_family == 'Debian'
+
+- name: "install expect"
+  apt:
+    name: "{{ dependencies_pkgs }}"
+    state: latest
+  when: ansible_os_family == 'Debian'
+
+- name: Set cap_net_bind_service+ep on /usr/bin/step-ca
+  capabilities:
+    path: /usr/bin/step-ca
+    capability: cap_net_bind_service+ep
+    state: present

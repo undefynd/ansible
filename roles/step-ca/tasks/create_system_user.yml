@@ -1,0 +1,16 @@
+---
+
+- name: create step system group
+  group:
+    name: step
+    gid: 997
+    system: yes
+
+- name: create step system user
+  user:
+    name: step
+    system: yes
+    group: step
+    uid: 997
+    shell: /usr/sbin/nologin
+    password_lock: yes 

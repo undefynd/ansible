@@ -1,0 +1,97 @@
+---
+- name: make sure ca_dir or /etc/step-ca exists
+  file:
+    path: "{{ ca_dir | default('/etc/step-ca') }}"
+    state: directory
+    owner: step
+    group: step
+    mode: 0755
+
+- name: init step ca
+  block:
+    - name: check if pwd file exists
+      stat:
+        path: "{{ ca_dir | default('/etc/step-ca') }}/pwd"
+      register: pwd
+
+    - name: create passwd file
+      copy:
+        content: "{{ ca_password }}"
+        dest: "{{ ca_dir |default('/etc/step-ca') }}/pwd"
+        mode: 0400
+        owner: step
+        group: step
+      when: not pwd.stat.exists
+
+    - name: init step ca
+      shell: "step ca init {{ step_ca_init | join(' --') | regex_replace('(.*)', '--\\1')| regex_replace('--$','') }}"
+      when: not pwd.stat.exists
+      register: init
+      notify: start step-ca
+
+    - name: check if step config exists
+      stat:
+        path: "{{ ca_dir |default('/etc/step-ca') }}/config/ca.json"
+      register: conf
+
+    - name: add acme to step-ca
+      shell: step ca provisioner add acme --type ACME
+      when: acme and conf.stat.exists and init is changed
+
+    - name: Check if $PATH is configured in /etc/environment
+      lineinfile:
+        dest: "{{ ca_dir |default('/etc/step-ca') }}/pwd"
+        regexp: "{{ ca_password }}"
+        state: absent
+      check_mode: yes
+      register: presence
+
+    - name: change the password for the intermediate CA private key and overwrite key
+      shell: |
+        set timeout 300
+        spawn bash -c {/usr/bin/step crypto change-pass {{ ca_dir | default('/etc/step-ca')}}/secrets/intermediate_ca_key}
+
+        expect "Please enter the password to decrypt /etc/step-ca/secrets/intermediate_ca_key:" 
+        send "{{ ca_password | replace('$','\$')}}\r"
+
+        expect -re "Please enter the password to encrypt(.*):"
+        send "{{ ca_intermediate_passwd | replace('$','\$')}}\r"
+
+        expect -re "(.*)Would you like to overwrite(.*)" {send "y\r"}
+        send "y\r"
+
+        exit 0
+      args:
+        executable: /usr/bin/expect
+      register: imupdated
+
+    - name: update password file
+      lineinfile:
+        path: "{{ ca_dir |default('/etc/step-ca') }}/pwd"
+        regexp: "{{ ca_password }}"
+        line: "{{ ca_intermediate_passwd }}"
+      when: imupdated is changed
+
+    - name: remove default JWK
+      shell: "step ca provisioner remove {{ ca_default_provisioner_name }} --ca-config {{ ca_dir | default('/etc/step-ca')}}/config/ca.json --type JWK"
+      when: remove_default_JWK and conf.stat.exists and ca_jwk_passwd is defined and ca_jwk_passwd|length>0 and init is changed
+      register: dJWKremoved
+
+    - name: add new JWK
+      expect:
+        command: step ca provisioner add {{ ca_default_provisioner_name }} --ca-config {{ ca_dir | default('/etc/step-ca')}}/config/ca.json --create
+        responses:
+          (.*)Please enter a password to encrypt the provisioner private key\? \[leave empty and we'll generate one\]:(.*): "{{ ca_jwk_passwd }}"
+      when: dJWKremoved is changed and ca_jwk_passwd is defined and ca_jwk_passwd|length>0
+
+  environment:
+    STEPPATH: "{{ ca_dir | default('/etc/step-ca')}}"
+  when: init_ca and ca_password is defined and ca_password|length>0
+
+- name: set permissions for {{ ca_dir | default('/etc/step-ca')}}
+  file:
+    path: "{{ ca_dir | default('/etc/step-ca')}}"
+    owner: step
+    group: step
+    recurse: yes
+  notify: start step-ca
