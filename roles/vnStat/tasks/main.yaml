@@ -1,0 +1,75 @@
+---
+- name: install required packages
+  apt:
+    name: "{{ apt_pkgs }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'
+
+- name: check if {{ dest_download }}/{{ vnstat_url | basename }} exists
+  stat:
+    path: "{{ dest_download }}/{{ vnstat_url | basename }}"
+  register: vnstat_package
+
+- name: check if vnstat is installed
+  stat:
+    path: /usr/bin/vnstat
+  register: vnstat_installed
+
+- name: check if vnstat service file exists
+  stat:
+    path: /etc/systemd/system/vnstat.service
+  register: vnstat_service
+
+- name: download vnStat for Linux on amd64
+  get_url:
+    url: "{{ vnstat_url }}"
+    dest: "{{ dest_download }}/{{ vnstat_url | basename }}"
+  register: vnstat_download
+  when: not vnstat_package.stat.exists
+
+- name: stop vnstat before upgrade
+  systemd:
+    name: vnstat
+    state: stopped
+  when: vnstat_service.stat.exists and vnstat_download is changed
+
+- name: uninstall vnstat binary for upgrade
+  file:
+    path: /usr/bin/vnstat
+    state: absent
+  when: vnstat_installed.stat.exists and vnstat_download is changed
+
+- name: unpack vnstat
+  unarchive:
+    src: "{{ dest_download }}/{{ vnstat_url | basename }}"
+    dest: "{{ dest_download}}"
+    remote_src: yes
+  when: vnstat_download is changed
+  register: unpack_vnstat
+
+- name: configure vnstat before install
+  shell:
+    cmd: ./configure --prefix=/usr --sysconfdir=/etc
+    chdir: "{{ dest_download }}/{{ vnstat_url | basename | splitext | first | splitext | first}}"
+  when: unpack_vnstat is changed
+  register: configure_make
+
+- name: Build the default target
+  make:
+    chdir: "{{ dest_download }}/{{ vnstat_url | basename | splitext | first | splitext | first}}"
+  when: configure_make is changed
+
+- name: configure vnstat systemd file
+  copy:
+    src: vnstat.service
+    dest: /etc/systemd/system/vnstat.service
+  register: copy_file
+  notify: start vnstat
+
+- name: reload systemd
+  systemd:
+    daemon-reload: yes
+  when: copy_file is changed
+  notify: start vnstat

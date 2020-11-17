@@ -1,0 +1,12 @@
+---
+- name: start vnstat
+  systemd:
+    name: vnstat
+    enabled: yes
+    state: started
+
+- name: restart vnstat
+  systemd:
+    name: vnstat
+    enabled: yes
+    state: restarted

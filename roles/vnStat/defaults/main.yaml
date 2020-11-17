@@ -1,0 +1,9 @@
+---
+apt_pkgs:
+  - build-essential
+  - gcc
+  - make
+  - libsqlite3-dev
+
+vnstat_url: "https://humdi.net/vnstat/vnstat-2.6.tar.gz"
+dest_download: "/var/tmp"
