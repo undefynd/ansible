@@ -1,0 +1,26 @@
+---
+
+- name: dump all database on master
+  mysql_db:
+    state: dump
+    name: all
+    target: "/tmp/dump{{ mysql_slave }}.sql"
+    master_data: 1
+  when: dumpall and ansible_fqdn == mysql_slave
+  delegate_to: mysql_master
+  register: dump_created
+
+
+- name: sync  database dump
+  synchronize:
+    src: /tmp/dump{{ mysql_slave }}.sql
+    dest: /tmp/dump{{ mysql_slave }}.sql
+    checksum: yes
+  delegate_to: mysql_master
+  when: ansible_fqdn != mysql_master and dump_created is changed
+
+- name: import dump to database
+  mysql_db:
+    name: all
+    state: import
+    target: /tmp/dump{{ mysql_slave }}.sql

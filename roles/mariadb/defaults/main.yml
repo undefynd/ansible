@@ -1,12 +1,13 @@
 ---
-
 mariadb_pkgs:
   - mariadb-server
   - python3-pymysql
   - python-pymysql-doc
+  - software-properties-common
+  - gnupg2
 
 secure_install: true
-mariadb_root_password: '123456'
+mariadb_root_password: "123456"
 mariadb_conf_dir: /etc/mysql
 
 confd:
@@ -14,7 +15,7 @@ confd:
     mysql: Null
   mysqldump: #filename
     mysqldump: #section name :
-      quick:  Null # content
+      quick: Null # content
       quote-names: Null
       max_allowed_packet: 16M
 
@@ -56,15 +57,13 @@ mariadb_confd:
       expire_logs_days: 10
       character-set-server: utf8mb4
       collation-server: utf8mb4_general_ci
-    embedded: Null 
+    embedded: Null
     mariadb: Null
     mariadb-10.3: Null
 
-databases:
-  - name: newdb
-    state: present
+mariadb_databases: {}
 
-db_users: {}
+mariadb_users: {}
 
 dumpall: true
 replica_role: master #slave

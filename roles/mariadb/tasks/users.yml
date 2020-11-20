@@ -1,0 +1,29 @@
+---
+- name: "remove all anonymous user"
+  mysql_user:
+    login_host: "{{ login_host | default(omit) }}"
+    login_port: "{{ login_port | default(omit) }}"
+    login_user: "{{ login_user | default(omit) }}"
+    login_unix_socket: "{{ login_socket | default('/var/run/mysqld/mysqld.sock') }}"
+    login_password: "{{ login_password | default(mariadb_root_password|default(omit)) }}"
+    name: ""
+    host_all: yes
+    state: absent
+  no_log: yes
+
+- name: "create db users"
+  mysql_user:
+    login_host: "{{ login_host | default(omit) }}"
+    login_port: "{{ login_port | default(omit) }}"
+    login_user: "{{ login_user | default(omit) }}"
+    login_unix_socket: "{{ login_socket | default('/var/run/mysqld/mysqld.sock') }}"
+    login_password: "{{ login_password | default(mariadb_root_password|default(omit)) }}"
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    priv: "{{ item.priv }}"
+    encrypted: "{{ item.encrypted | default('yes') }}"
+    host: "{{ item.host | default('localhost') }}"
+    state: "{{ item.state | default('present') }}"
+    update_password: "{{ item.update_password|default('on_create') }}"
+  loop: "{{ mariadb_users|flatten(levels=1) }}"
+  no_log: yes
