@@ -18,6 +18,7 @@ node01.vagrant.test
 node02.vagrant.test
 node03.vagrant.test
 ca.vagrant.test
+pdns.vagrant.test
 
 [consul]
 consul01.vagrant.test
