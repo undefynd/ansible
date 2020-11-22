@@ -1,0 +1,9 @@
+#{{ ansible_managed }}
+
+{% for key, value in pdns_conf.items() %}
+{% if value == 'None' %}
+{{ key }}=
+{% else %}
+{{ key }}={{ value }}
+{% endif %}
+{% endfor %}

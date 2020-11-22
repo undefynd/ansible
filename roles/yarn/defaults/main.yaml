@@ -1,0 +1,4 @@
+---
+yarn_repo_key: "https://dl.yarnpkg.com/debian/pubkey.gpg"
+yarn_repo: "deb https://dl.yarnpkg.com/debian/ stable main"
+yarn_pkg: yarn

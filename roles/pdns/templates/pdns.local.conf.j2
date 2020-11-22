@@ -1,0 +1,13 @@
+#{{ ansible_managed }}
+
+{% for key,value in pdns_db_connection_config.items() %}
+{% if key == 'launch' %}
+{{ key }}+={{ value}}
+{% else %}
+{% if value is boolean %}
+{{ key }}={{ value | lower }}
+{% else %}
+{{ key }}={{ value }}
+{% endif %}
+{% endif %}
+{% endfor %}

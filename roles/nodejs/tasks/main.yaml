@@ -1,0 +1,22 @@
+---
+- name: download nodejs repo setup script
+  get_url:
+    url: "{{ nodejs_setup_url }}"
+    dest: "/var/tmp/{{ nodejs_setup_url | basename }}.sh"
+    mode: 0774
+    owner: root
+    group: root
+  register: nodejs_setup
+
+- name: install nodejs repo
+  shell:
+    cmd: "/var/tmp/{{ nodejs_setup_url | basename }}.sh"
+  when: nodejs_setup is changed
+
+- name: install nodejs debian/ubuntu
+  apt:
+    name: nodejs
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'

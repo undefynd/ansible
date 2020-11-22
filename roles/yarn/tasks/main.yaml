@@ -1,0 +1,19 @@
+---
+- name: "add repo key"
+  apt_key:
+    url: "{{ yarn_repo_key }}"
+    state: present
+
+- name: "add yarn repo"
+  apt_repository:
+    filename: yarn
+    repo: "{{ yarn_repo }}"
+    update_cache: yes
+    state: present
+
+- name: "install yarn"
+  apt:
+    name: "{{ yarn_pkg }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
