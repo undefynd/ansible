@@ -1,0 +1,35 @@
+---
+pdns_admin_required_pkgs:
+  - python3-dev
+  - libsasl2-dev
+  - libldap2-dev
+  - libssl-dev
+  - libxml2-dev
+  - libxslt1-dev
+  - libxmlsec1-dev
+  - libffi-dev
+  - pkg-config
+  - apt-transport-https
+  - virtualenv
+  - build-essential
+  - libmariadb-dev
+  - git
+  - python3-flask
+
+default_conf:
+  SALT: "yoursecretekey" #generate a new salt
+  SECRET_KEY: "yoursecretekey" # needs to be pdns api key
+  BIND_ADDRESS: "0.0.0.0"
+  PORT: 9191
+  HSTS_ENABLED: False
+  OFFLINE_MODE: False
+  SQLA_DB_USER: "pdnsadmin"
+  SQLA_DB_PASSWORD: "password"
+  SQLA_DB_HOST: "127.0.0.1"
+  SQLA_DB_NAME: "pdns"
+  SQLALCHEMY_TRACK_MODIFICATIONS: True
+  SQLALCHEMY_DATABASE_URI: "'mysql://'+SQLA_DB_USER+':'+SQLA_DB_PASSWORD+'@'+SQLA_DB_HOST+'/'+SQLA_DB_NAME"
+  SAML_ENABLED: False
+  SAML_ASSERTION_ENCRYPTED: True
+
+use_nginx: true

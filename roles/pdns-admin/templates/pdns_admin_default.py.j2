@@ -1,0 +1,10 @@
+import os
+basedir = os.path.abspath(os.path.abspath(os.path.dirname(__file__)))
+
+{% for key, value in default_conf.items() %}
+{% if value is boolean or key == 'SQLALCHEMY_DATABASE_URI' or value|int != 0 %}
+{{ key }} = {{ value }}
+{% else %}
+{{ key }} = '{{ value }}'
+{% endif %}
+{% endfor %}

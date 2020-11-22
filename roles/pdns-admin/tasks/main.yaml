@@ -1,0 +1,111 @@
+---
+- name: install pdns-admin required packages
+  apt:
+    name: "{{ pdns_admin_required_pkgs }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'
+
+- name: check if powerdns is checked out
+  stat:
+    path: /var/www/html/pdns
+  register: pdnsdir
+
+- name: download pdns-admin
+  git:
+    repo: https://github.com/ngoduykhanh/PowerDNS-Admin.git
+    dest: /var/www/html/pdns
+  register: download_pdnsadmin
+  when: not pdnsdir.stat.exists
+
+- name: create virtualenv and install requirements.txt
+  pip:
+    virtualenv: /var/www/html/pdns/flask
+    requirements: /var/www/html/pdns/requirements.txt
+    virtualenv_python: python3
+
+- name: define pdnsadmin database connection
+  template:
+    src: pdns_admin_default.py.j2
+    dest: /var/www/html/pdns/powerdnsadmin/default_config.py
+    mode: 0644
+    owner: root
+    group: root
+
+- name: update database
+  shell:
+    cmd: source ./flask/bin/activate; flask db upgrade; yarn install --pure-lockfile; flask assets build; deactivate
+    chdir: /var/www/html/pdns/
+    executable: /bin/bash
+  environment:
+    FLASK_APP: powerdnsadmin/__init__.py
+  when: download_pdnsadmin is changed
+
+- name: deploy pdnsadmin.service file
+  copy:
+    src: pdnsadmin.socket
+    dest: /etc/systemd/system/pdnsadmin.socket
+    owner: root
+    group: root
+    mode: 0644
+  notify: daemon reload
+
+- name: deploy pdnsadmin.service file
+  copy:
+    src: pdnsadmin.service
+    dest: /etc/systemd/system/pdnsadmin.service
+    owner: root
+    group: root
+    mode: 0644
+  register: pdnsadminservice
+
+- name: daemon reload
+  systemd:
+    daemon-reload: yes
+  when: pdnsadminservice is changed
+
+- name: create tmp files
+  copy:
+    content: "d /run/pdnsadmin 0755 pdns pdns -"
+    dest: /etc/tmpfiles.d/pdnsadmin.conf
+  notify: start pdnsadmin
+
+- name: create required directories
+  file:
+    path: /run/pdnsadmin/
+    state: directory
+    owner: pdns
+    group: pdns
+    recurse: yes
+  notify: start pdnsadmin
+
+- name: set permissions for /var/www/html/pdns/powerdnsadmin/
+  file:
+    path: /var/www/html/pdns/powerdnsadmin/
+    owner: pdns
+    group: pdns
+    recurse: yes
+  notify: start pdnsadmin
+
+- name: deploy nginx conf
+  block:
+    - name: install nginx
+      apt:
+        name: nginx
+      when: ansible_os_family == 'Debian'
+
+    - name: deploy pdns-admin.conf
+      copy:
+        src: nginx/pdns-admin.conf
+        dest: /etc/nginx/conf.d/pdns-admin.conf
+        mode: 0644
+        owner: root
+        group: root
+      register: nginxconf
+
+    - name: restart nginx
+      systemd:
+        name: nginx
+        state: restarted
+  when: use_nginx

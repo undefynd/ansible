@@ -1,0 +1,6 @@
+---
+- name: start pdnsadmin
+  systemd:
+    name: pdnsadmin
+    state: started
+    enabled: yes
