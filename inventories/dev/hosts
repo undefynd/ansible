@@ -19,6 +19,7 @@ node02.vagrant.test
 node03.vagrant.test
 ca.vagrant.test
 pdns.vagrant.test
+icinga2.vagrant.test
 
 [consul]
 consul01.vagrant.test

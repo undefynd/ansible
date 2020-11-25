@@ -1,0 +1,7 @@
+---
+- hosts: icinga2.vagrant.test
+  become: yes
+  user: vagrant
+  roles:
+    - mariadb
+    - icinga2

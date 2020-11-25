@@ -1,0 +1,97 @@
+---
+key_url: "https://packages.icinga.com/icinga.key"
+icinga2_repo: "deb http://packages.icinga.com/{{ ansible_distribution|lower }} icinga-{{ ansible_distribution_release|lower }} main"
+
+icinga2_packages:
+  - apt-transport-https
+  - wget
+  - gnupg
+  - icinga2
+  - monitoring-plugins
+  - icinga2-ido-mysql
+  - icingaweb2
+  - icingacli
+  - php7.4
+  - php7.4-intl
+  - php7.4-imagick
+  - php7.4-gd
+  - php7.4-mysql
+  - php7.4-curl
+  - php7.4-mbstring
+
+icinga2_features: []
+
+icinga2_api: true
+icinga2_webserver: apache2
+
+icingaweb2_user:
+  - name: admin
+    password_hash: $2y$10$9cJwS/hjJofXhhnab7nm3u1d.NL4S6cZwUHLaE5On.DurjQYOAoM2 # to generate the hash run: php -r 'echo password_hash("yourtopsecretpassword", PASSWORD_DEFAULT);'
+    active: 1
+
+icinga2_features_configuration:
+  ido-mysql.conf:
+    IdoMysqlConnection:
+      ido-mysql:
+        user: icinga2
+        password: Icinga2
+        host: localhost
+        database: icinga2
+
+icingaweb2_configuration:
+  resources.ini:
+    icingaweb2:
+      type: "db"
+      db: "mysql"
+      host: "localhost"
+      port: ""
+      dbname: "icingaweb2"
+      username: "icingaweb2"
+      password: "icingaweb2"
+      charset: ""
+      use_ssl: "0"
+    icinga2:
+      type: "db"
+      db: "mysql"
+      host: "localhost"
+      port: ""
+      dbname: "icinga2"
+      username: "icinga2"
+      password: "icinga2"
+      charset: ""
+      use_ssl: "0"
+  groups.ini:
+    icingaweb2:
+      backend: "db"
+      resource: "icingaweb2"
+  roles.ini:
+    Administrators:
+      users: "admin"
+      permissions: "*"
+      groups: "Administrators"
+  config.ini:
+    global:
+      show_stacktraces: "1"
+      show_application_state_messages: "1"
+      config_backend: "db"
+      config_resource: "icingaweb2"
+    logging:
+      log: "syslog"
+      level: "ERROR"
+      application: "icingaweb2"
+      facility: "user"
+  authentication.ini:
+    icingaweb2:
+      backend: "db"
+      resource: "icingaweb2"
+  modules/monitoring/config.ini:
+    security:
+      protected_customvars: "*pw*,*pass*,community"
+  modules/monitoring/backends.ini:
+    icinga:
+      type: "ido"
+      resource: "icinga2"
+  modules/monitoring/commandtransports.ini:
+    icinga2:
+    transport: "local"
+    path: "/var/run/icinga2/cmd/icinga2.cmd"

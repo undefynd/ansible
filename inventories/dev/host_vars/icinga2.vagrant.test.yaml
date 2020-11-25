@@ -1,0 +1,20 @@
+---
+mariadb_root_password: "aldsd;nasvow223421"
+
+mariadb_databases:
+  - name: icinga
+    state: present
+  - name: icingaweb2
+    state: present
+
+mariadb_users:
+  - name: icinga2
+    password: icinga2
+    host: localhost
+    priv: icinga2.*:SELECT,INSERT,UPDATE,DELETE,DROP,CREATE VIEW,INDEX,EXECUTE
+    encrypted: no
+  - name: icingaweb2
+    password: icingaweb2
+    host: localhost
+    priv: icingaweb2.*:ALL
+    encrypted: no

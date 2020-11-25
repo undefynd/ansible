@@ -1,0 +1,13 @@
+---
+mariadb_root_password: "123456"
+
+mariadb_databases:
+  - name: pdns
+    state: present
+
+mariadb_users:
+  - name: pdnsadmin
+    password: password
+    host: localhost
+    priv: pdns.*:all
+    encrypted: no

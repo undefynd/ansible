@@ -1,0 +1,10 @@
+#{{ ansible_managed }}
+
+{% for key, value in item.value.items() %}
+[{{ key }}]
+{% if value is mapping %}
+{% for key, value in value.items() %}
+{{ key }} = "{{ value }}"
+{% endfor %}
+{% endif %}
+{% endfor %}

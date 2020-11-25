@@ -1,0 +1,10 @@
+---
+- hosts: pdns.vagrant.test
+  become: yes
+  user: vagrant
+  roles:
+    - nodejs
+    - yarn
+    - mariadb
+    - pdns
+    - pdns-admin

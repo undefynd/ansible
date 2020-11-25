@@ -1,0 +1,3 @@
+{% for item in icingaweb2_user %}
+INSERT INTO icingaweb2.icingaweb_user (name, active, password_hash) VALUES ('{{ item.name }}', {{ item.active }}, '{{ item.password_hash}}') ON DUPLICATE KEY UPDATE password_hash='{{ item.password_hash }}';
+{% endfor %}

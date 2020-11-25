@@ -1,0 +1,68 @@
+#{{ ansible_managed }}
+{% for key, value in item.value.items() %}
+{% if key == 'IdoMysqlConnection' %}
+library "db_ido_mysql"
+{% endif %}
+
+{% if value is mapping %}
+{% for key2, value2 in value.items() %}
+{% if value2|length>0 %}
+object {{ key }} "{{key2}}" {
+{% for key3, value3 in value2.items() %}
+{% if value3 is mapping %}
+{{ key3|indent(2,true) }} = {
+{% for key4,value4 in value3.items() %}
+{%if value4 is mapping %}
+{{ key4|indent(4,true) }} = {
+{% for key5, value5 in value4.items() %}
+{% if value5 is string %}
+{% if value5|regex_search('\d*[h|s]$') %}
+{{ key5|indent(6,true) }} = {{ value5 }}
+{% else %}
+{{ key5|indent(6,true) }} = "{{ value5 }}"
+{% endif %}
+{% else %}
+{{ key5|indent(6,true) }} = {{ value5 | lower }}
+{% endif %}
+{% endfor %}
+{{ '}'|indent(4,true) }}
+{% else %}
+{% if value4 is string %}
+{% if value4|regex_search('\d*[h|s]$') %}
+{{ key4|indent(4,true) }} = {{ value4 }}
+{% else %}
+{{ key4|indent(4,true) }} = "{{ value4 }}"
+{% endif %}
+{% else %}
+{{ key4|indent(4,true) }} = {{ value4|lower }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{{ '}'|indent(2,true) }}
+{% else %}
+{% if key2 == 'ido-mysql' %}
+{% if loop.index == loop.length %}
+{{ key3|indent(2,true) }} = "{{ value3 }}"
+{% else %}
+{{ key3|indent(2,true) }} = "{{ value3 }}",
+{% endif %}
+{% else %}
+{% if value3 is string %}
+{% if value3|regex_search('\d*[h|s]$') %}
+{{ key3|indent(2,true) }} = {{ value3 }}
+{% else %}
+{{ key3|indent(2,true) }} = "{{ value3 }}"
+{% endif %}
+{% else %}
+{{ key3|indent(2,true) }} = {{ value3|lower }}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endfor %}
+}
+{% else %}
+object {{ key }} "{{key2}}" { }
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}

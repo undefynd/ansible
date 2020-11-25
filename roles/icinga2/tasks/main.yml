@@ -1,0 +1,211 @@
+---
+- name: add repokey for icinga2 ubuntu
+  apt_key:
+    url: "{{ key_url }}"
+    state: present
+
+- name: add repo ubuntu
+  apt_repository:
+    repo: "{{ icinga2_repo }}"
+    state: present
+    update_cache: yes
+    filename: icinga2
+
+- name: install icinga2 packages
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    name: "{{ icinga2_packages }}"
+    state: latest
+
+- name: start and enable icinga2 service
+  service:
+    enabled: yes
+    name: icinga2
+    state: started
+
+- name: check if mysql is installed
+  stat:
+    path: /usr/bin/mysql
+  register: mysql
+
+- name: check if icinga2-ido-mysql schema exists
+  stat:
+    path: /usr/share/icinga2-ido-mysql/schema/mysql.sql
+  register: icinga2IdoMysql
+
+- name: activate ido-mysql
+  icinga2_feature:
+    name: ido-mysql
+    state: present
+  when: mysql.stat.exists
+  register: idomysql
+
+- name: import icinga2-ido-mysql database schema
+  mysql_db:
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: import
+    name: icinga
+    target: /usr/share/icinga2-ido-mysql/schema/mysql.sql
+  when: idomysql is changed and icinga2IdoMysql.stat.exists
+
+- name: activate icinga2 features
+  icinga2_feature:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ icinga2_features }}"
+  when: icinga2_features|length>0
+
+- name: setup icinga2 api
+  block:
+    - name: enable icinga2 api
+      icinga2_feature:
+        name: api
+        state: present
+
+    - name: generate icinga2 api
+      shell:
+        cmd: icinga2 api setup
+        executable: /bin/bash
+      register: generate_icinga2_api
+      notify: restart icinga2
+
+  when: icinga2_api
+
+- name: configure icinga2 features
+  template:
+    src: icinga2.conf.j2
+    dest: "/etc/icinga2/features-available/{{ item.key }}"
+    owner: nagios
+    group: nagios
+    mode: 0644
+  loop: "{{ icinga2_features_configuration| dict2items }}"
+  when: icinga2_features_configuration is defined and icinga2_features_configuration|length>0
+  notify: restart icinga2
+
+- name: enable icinga2 features
+  file:
+    src: "/etc/icinga2/features-available/{{ item.key }}"
+    dest: "/etc/icinga2/features-enabled/{{ item.key }}"
+    state: link
+  loop: "{{ icinga2_features_configuration| dict2items }}"
+  when: icinga2_features_configuration is defined and icinga2_features_configuration|length>0
+  notify: restart icinga2
+
+- name: setup icinga2-web
+  block:
+    - name: check if icinga2 web database schema exists
+      stat:
+        path: /usr/share/icingaweb2/etc/schema/mysql.schema.sql
+      register: icinga2web_schema
+
+    - name: import icinga2-ido-mysql database schema
+      mysql_db:
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        state: import
+        name: icingaweb2
+        target: /usr/share/icingaweb2/etc/schema/mysql.schema.sql
+      when: icinga2web_schema.stat.exists and idomysql is changed
+
+    - name: check if apache2 is installed
+      stat:
+        path: /usr/sbin/apache2
+      register: apache2
+
+    - name: install apache2
+      apt:
+        name: apache2
+        state: latest
+      when: icinga2_webserver == "apache2" and not apache2.stat.exists
+
+    - name: check if nginx is installed
+      stat:
+        path: /usr/sbin/nginx
+      register: nginx
+
+    - name: install nginx
+      apt:
+        name: nginx
+        state: latest
+      when: icinga2_webserver == "nginx" and not nginx.stat.exists
+
+    - name: check if icinga2 apache2 config exists
+      stat:
+        path: /etc/apache2/conf-available/icingaweb2.conf
+      register: icinga2apacheConf
+
+    - name: generate apache2 config
+      shell:
+        cmd: icingacli setup config webserver apache
+        executable: /bin/bash
+      when: apache2.stat.exists and not icinga2apacheConf.stat.exists
+      register: apache_conf_generated
+
+    - name: generate nginx config
+      shell:
+        cmd: icingacli setup config webserver nginx
+        executable: /bin/bash
+      when: nginx.stat.exists
+      register: nginx_conf_generated
+
+    - name: create icinga2 web setup token
+      shell:
+        cmd: icingacli setup token create
+        executable: /bin/bash
+      when: nginx_conf_generated is changed or apache_conf_generated is changed
+
+    - name: create icingaweb2_user.sql file
+      template:
+        src: icingaweb2_user.sql.j2
+        dest: /var/tmp/icingaweb2_user.sql
+      register: usersqlfile
+
+    - name: import icingaweb2_user
+      mysql_db:
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        state: import
+        name: icingaweb2
+        target: /var/tmp/icingaweb2_user.sql
+      when: usersqlfile is changed
+
+    - name: ensure www-data is in icinga2web group
+      user:
+        name: www-data
+        groups: icingaweb2
+        append: yes
+
+    - name: check if icingaweb2 sub dir exists
+      stat:
+        path: /etc/icingaweb2/
+      register: icingaweb2subdir
+
+    - name: create icingaweb2 directorys
+      shell:
+        cmd: icingacli setup config directory
+        executable: /bin/bash
+      when: not icingaweb2subdir.stat.exists
+
+    - name: create icingaweb2 monitoring dir
+      file:
+        path: /etc/icingaweb2/modules/monitoring
+        state: directory
+        owner: root
+        group: icingaweb2
+        mode: 02770
+
+    - name: configure icingaweb2
+      template:
+        src: icingaweb2.config.j2
+        dest: "/etc/icingaweb2/{{ item.key }}"
+        owner: www-data
+        group: icingaweb2
+        mode: 0660
+      loop: "{{ icingaweb2_configuration| dict2items }}"
+      notify: restart icinga2
+  when: icinga2web_install|default(true)
