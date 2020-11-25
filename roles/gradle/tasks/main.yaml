@@ -1,0 +1,41 @@
+---
+
+- name: check if java is installed
+  stat:
+    path: /usr/bin/java
+  register: java
+
+- name: install openjdk if java is not found
+  apt:
+    name: default-jdk
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: not java.stat.exists and ansible_os_family == 'Debian'
+
+- name: download gradle for Linux on amd64
+  get_url:
+     url: "{{ gradle_url }}"
+     dest: "/var/tmp/{{ gradle_url | basename }}"
+  register: gradle_download
+  when: not gradle_package.stat.exists
+
+- name: create /opt/gradle
+  file:
+    path: /opt/gradle
+    state: directory
+
+- name: unpack gradle
+  unarchive:
+    src: "/var/tmp/{{ gradle_url | basename }}"
+    dest: /opt/gradle
+    remote_src: yes
+  when: gradle_download is changed
+
+- name: setup gradle environment variable
+  copy:
+    src: gradle.sh
+    dest:  /etc/profile.d/gradle.sh
+    mode: 0755
+    owner: root
+    group: root
