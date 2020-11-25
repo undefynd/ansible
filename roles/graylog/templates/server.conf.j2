@@ -1,0 +1,15 @@
+#{{ ansible_managed }}
+
+{% for key, value in graylog_conf.items() %}
+{% if value is iterable and (value is not string and value is not mapping) %}
+{% for item in value %}
+{{ key }} = {{ item }}
+{% endfor %}
+{% else %}
+{% if value is string %}
+{{ key }} = {{ value }}
+{% else %}
+{{ key }} = {{ value | lower}}
+{% endif %}
+{% endif %}
+{% endfor %}

@@ -1,0 +1,6 @@
+---
+
+- name: restart graylog
+  systemd:
+    name: graylog-server
+    state: restarted

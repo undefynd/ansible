@@ -1,0 +1,50 @@
+---
+
+- name: check if java is installed
+  stat: 
+    path: /usr/bin/java
+  register: java
+
+- name: install openjdk if java is not found
+  apt:
+    name: default-jdk
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: not java.stat.exists and ansible_os_family == 'Debian'
+
+
+- name: install graylog on Ubuntu
+  block:
+    - name: install graylog repo
+      apt:
+        deb: "{{ graylog_repo_pkg }}"
+  
+
+    - name: install graylog runtime
+      apt:
+        name: "{{ graylog_pkgs }}"
+        state: latest
+        update_cache: yes
+        cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'
+
+- name: deploy graylog config
+  template:
+    src: server.conf.j2
+    dest: /etc/graylog/server/server.conf
+    mode: 0644
+    owner: root
+    group: root
+  when: graylog_conf is defined
+  notify: restart graylog
+
+- name: reload graylog service daemon
+  systemd:
+    daemon-reload: yes
+
+- name: start graylog
+  systemd:
+    name: graylog-server
+    enabled: yes
+    state: started
