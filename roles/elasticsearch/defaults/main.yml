@@ -1,0 +1,11 @@
+---
+
+elasticsearch_repo_key: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+elasticsearch_repo: "deb https://artifacts.elastic.co/packages/7.x/apt stable main"
+
+
+elasticsearch_conf:
+  path.data: /var/lib/elasticsearch
+  path.logs: /var/log/elasticsearch
+
+elasticsearch_plugin: {}

@@ -1,0 +1,45 @@
+---
+
+- name: "add repo key"
+  apt_key:
+    url: "{{ elasticsearch_repo_key }}"
+    state: present
+
+- name: "add elasticsearch repo"
+  apt_repository:
+    filename: elasticsearch
+    repo: "{{ elasticsearch_repo }}"
+    update_cache: yes
+    state: present
+
+- name: "install elasticsearch"
+  apt:
+    name: elasticsearch
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: deploy elasticsearch config
+  templates:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: elasticsearch
+    mode: 0660
+  notify: restart elasticsearch
+
+- name: manage elasticsearch plugins
+  elasticsearch_plugin:
+    name: "{{ item.name }}"
+    src: "{{ item.src | default(omit) }}"
+    proxy_host: "{{ item.host | default(omit) }}"
+    proxy_port: "{{ item.host | default(omit) }}"
+    force: "{{ item.force | default(omit) }}"
+  loop: "{{ elasticsearch_plugins | flatten(levels=1) }}"
+  when: elasicsearch_plugins is defined and elasticsearch_plugins|length>0
+
+- name: start and enable elasticsearch
+  systemd:
+    name: elasticsearch
+    state: started
+    enabled: yes
