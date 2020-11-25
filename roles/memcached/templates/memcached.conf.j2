@@ -1,0 +1,9 @@
+#{{ ansible_managed }}
+
+{% for key, value in memcached_config.items() %}
+{% if key == 'logfile' %}
+{{ key }} {{ value|default('/var/log/memcached.log') }}
+{% else %}
+-{{ key }} {{ value }}
+{% endif %}
+{% endfor %}

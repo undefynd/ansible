@@ -20,3 +20,25 @@
     cache_valid_time: 3600
   notify:
     - start docker
+
+- name: install docker compose
+  block:
+    - name: check if docker compose is installed
+      stat:
+        path: /usr/local/bin/docker-compose
+      register: dockercompose
+
+    - name: install docker compose
+      get_url:
+        url: "{{ docker_compose_pkg }}"
+        dest: /usr/local/bin/docker-compose
+      register: docker_compose_download
+      when: not dockercompose.stat.exists
+
+    - name: set execute permissons
+      file:
+        path: /usr/local/bin/docker-compose
+        mode: a+x
+      when: docker_compose_download is changed
+
+  when: install_docker_compose

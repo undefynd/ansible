@@ -1,4 +1,5 @@
 ---
+
 - name: install fail2ban
   apt:
     name: fail2ban

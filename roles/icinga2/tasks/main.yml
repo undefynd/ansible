@@ -1,4 +1,5 @@
 ---
+
 - name: add repokey for icinga2 ubuntu
   apt_key:
     url: "{{ key_url }}"
