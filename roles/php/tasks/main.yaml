@@ -1,0 +1,35 @@
+---
+
+- name: install php
+  apt:
+    name: php7.4
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'
+
+- name: check if apache2 is installed
+  stat:
+    path: /usr/sbin/apache2
+  register: apache2
+
+- name: check if nginx is installed
+  stat:
+    path: /usr/sbin/nginx
+  register: nginx
+
+- name: install php-fpm for nginx
+  apt:
+    name: phpphp7.4-fpm
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: nginx.stat.exists and not apache2.stat.exists and ansible_os_family == 'Debian'
+ 
+- name: install ibapache2-mod-php7.4
+  apt:
+    name: ibapache2-mod-php7.4
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: apache2.stat.exists and not nginx.stat.exists and ansible_os_family == 'Debian'
