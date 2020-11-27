@@ -1,0 +1,37 @@
+---
+
+- name: "add repo key"
+  apt_key:
+    url: "{{ elastic_repo_key }}"
+    state: present
+
+- name: "add elastic repo"
+  apt_repository:
+    filename: elastic
+    repo: "{{ elastic_repo }}"
+    update_cache: yes
+    state: present
+
+- name: "install kibana"
+  apt:
+    name: kibana
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: deploy kibana config
+  template:
+    src: kibana.yaml.j2
+    dest: /etc/kibana/kibana.yaml
+    owner: root
+    group: kibana
+    mode: 0660
+  register: kibanaconfig
+  notify: restart kibana
+
+- name: start and enable kibana
+  systemd:
+    name: kibana
+    enabled: yes
+    state: started
+  when: kibanaconfig is changed

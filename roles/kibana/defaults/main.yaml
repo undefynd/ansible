@@ -1,0 +1,4 @@
+---
+
+elastic_repo_key: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+elastic_repo: "deb https://artifacts.elastic.co/packages/7.x/apt stable main"

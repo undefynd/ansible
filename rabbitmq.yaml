@@ -1,0 +1,6 @@
+---
+- hosts: rabbitmq
+  user: root
+  roles:
+    - erlang
+    - rabbitmq
