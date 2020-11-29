@@ -1,0 +1,28 @@
+---
+
+- name: "add repo key"
+  apt_key:
+    url: "https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+    state: present
+
+- name: "add hashicorp repo"
+  apt_repository:
+    filename: wazuh
+    repo: "deb https://packages.wazuh.com/3.x/apt/ stable main"
+    update_cache: yes
+    state: present
+
+- name: "install wazuh-manger"
+  apt:
+    name: "{{ wazuh_pkgs }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: "install wazuh-api"
+  apt:
+    name: "{{ wazuh-api_pkgs }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: wazuh_api_install
