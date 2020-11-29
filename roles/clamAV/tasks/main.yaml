@@ -1,0 +1,33 @@
+---
+
+- name: install CalmAV on Ubuntu/Debian
+  apt:
+    name: clamav,clamav-daemon
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'
+  notify:
+    - start clamav-freshclam
+    - start clamav-daemon
+
+- name: update ClamAV Signature Database
+  block:
+    - name: stop clamav-freshclan
+      systemd:
+        name: clamav-freshclam
+        state: stopped
+      register: freshclan_stopped
+
+    - name: update clamav-freshclam
+      shell:
+        cmd: freshclam
+      when: freshclan_stopped is changed
+      register: freshclam_update
+
+    - name: start freshclan
+      systemd:
+        name: clamav-freshclam
+        state: started
+      when: freshclam_update is changed
+  when: update_freshclan

@@ -1,0 +1,13 @@
+---
+
+- name: start clamav-freshclam
+  systemd:
+    name: clamav-freshclam
+    enabled: yes
+    state: started
+
+- name: start clamav-daemon
+  systemd:
+    name: clamav-daemon
+    state: started
+    enabled: yes

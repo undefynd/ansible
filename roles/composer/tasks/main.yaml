@@ -1,0 +1,18 @@
+---
+
+- name: check if php is installed
+  stat:
+    path: /usr/bin/php
+  register: php
+
+- name: install php7.4
+  apt:
+    name: php7.4
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian' and not php.stat.exists
+  register: php_installed
+
+- name: install php composer
+  shell: curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
