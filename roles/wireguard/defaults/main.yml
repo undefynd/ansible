@@ -1,0 +1,21 @@
+---
+
+wg_always_remove_peers: false #set to stop wireguard to also remove old peer connections
+ipv4_forwarding: false
+
+wireguard_config:
+  wg0.conf:
+    interface:
+      Address: 10.0.0.1/24
+      ListenPort: 51820
+      PostUp: "iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE"
+      PostDown: "iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o enp0s3 -j MASQUERADE"
+      SaveConfig: true
+      PrivateKey: "YF9fmbspC50KwRrIZFiFaEbAcEsiJZbiiYGUCoZXOH4="
+    peer:
+      - name: test2_user
+        PublicKey: "vjwKMCWk508Zb4lYo72mryA3OdJJPxiBhkdTPjHeElY="
+        AllowedIPs: 10.0.0.2/32
+      - name: test3
+        PublicKey: "BKQRJ6Lkpll3Sd0ITKn1glc6/Fpy6m2fEaCOPMtc3DQ="
+        AllowedIPs: 10.0.0.3/32

@@ -1,0 +1,25 @@
+#{{ ansible_managed }}
+
+{% for key, value in item.value.items() %}
+{% if value is mapping %}
+[{{ key }}]
+{% for key, value in value.items() %}
+{% if key == 'PrivateKey' %}
+{{ key }} = {{ value }}
+{% else %}
+{{ key }} = {{ value }}
+{% if ServerKey is defined %}
+PrivateKey = {{ ServerKey }}
+{% endif %}
+{% endif%}
+{% endfor %}
+{% elif value is iterable and (value is not string and value is not mapping) %}
+{% for item in value %}
+{% if item.PublicKey is defined and item.AllowedIPs is defined %}
+[ peer ]
+PublicKey = {{ item.PublicKey }} {% if item.name is defined %} #{{ item.name +'\n' }} {% endif %}
+AllowedIPs = {{ item.AllowedIPs }}
+{% endif %}
+{% endfor%}
+{% endif %}
+{% endfor %}

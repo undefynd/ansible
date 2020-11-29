@@ -1,0 +1,19 @@
+---
+
+- name: start wireguard
+  systemd:
+    name: wg-quick@wg0
+    state: started
+    enabled: yes
+
+- name: restart wireguard
+  systemd:
+    name: wg-quick@wg0
+    state: restarted
+  when: not wg_interface_status is failed and wg_always_remove_peers
+
+- name: reload wireguard
+  shell: 
+    cmd: wg addconf wg0 <(wg-quick strip wg0)
+    executable: /bin/bash
+  when: not wg_interface_status is failed and not wg_always_remove_peers

@@ -1,0 +1,77 @@
+---
+
+- name: install wireguard
+  apt:
+    name: wireguard
+    state: latest
+    cache_valid_time: 3600
+
+- name: enable ipv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+  when: ipv4_forwarding
+
+- name: create wireguard keys directory
+  file:
+    path: /etc/wireguard/keys
+    state: directory
+
+- name: check for wireguard priv key
+  stat:
+    path: /etc/wireguard/keys/privatekey
+  register: privkey
+
+- name: check for wireguard pub key
+  stat:
+    path: /etc/wireguard/keys/publickey
+  register: pubkey
+
+- name: gen wireguard keys
+  shell: 
+    cmd: "umask 077; wg genkey | tee privatekey | wg pubkey > publickey"
+    chdir: /etc/wireguard/keys
+  become: yes
+  when: not privkey.stat.exists and not pubkey.stat.exists
+  register: gen_key
+
+- name: get private key if privatekey is not defined as variable
+  block:
+  - name: get private key
+    shell:
+      cmd: cat /etc/wireguard/keys/privatekey
+    register: private_key
+    when: privkey.stat.exists
+
+  - name: set private key as variable for template use 
+    set_fact:
+      ServerKey: "{{ private_key.stdout }}"
+    when: private_key is changed
+  when: not wireguard_config['wg0.conf']['interface']['PrivateKey'] is defined
+
+- name: configure wireguard
+  template:
+    dest: "/etc/wireguard/{{ item.key }}"
+    src: wireguard.conf.j2 
+    owner: root
+    group: root
+    backup: yes
+    mode: 0700
+  loop: "{{ wireguard_config| dict2items }}"
+  register: wg_config
+  notify: 
+    - restart wireguard
+    - reload wireguard
+    - start wireguard
+
+- name: reload systemd daemon
+  systemd:
+    daemon_reload: yes
+  notify:
+    - start wireguard
+
+- name: check if interface is up
+  shell: wg show wg0 | grep "public key"
+  register: wg_interface_status
+  ignore_errors: true
