@@ -17,6 +17,9 @@
 - name: install pkgs
   apt:
     name: "{{ pkgs_deb }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
   when: ansible_os_family == 'Debian'
 
 - name: Import Webadmin RedHat/Centos Repo key
@@ -38,6 +41,8 @@
   yum:
     name:  "{{ pkgs_rpm }}"
     state: present
+    update_cache: yes
+
   when: ansible_os_family == 'RedHat'
 
 - name: install virtualmin
