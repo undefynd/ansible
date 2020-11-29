@@ -26,3 +26,26 @@
     update_cache: yes
     cache_valid_time: 3600
   when: wazuh_api_install
+
+- name: check if filebeat is installed
+  stat:
+    path: /usr/bin/filebeat
+  register: filebeat
+
+- name: deploy wazuh filebeat config
+  copy:
+    src: filebeat.yaml
+    dest: /etc/filebeat/filebeat.yml
+    mode: 0600
+    owner: root
+    group: root
+  when: filebeat.stat.exists
+
+- name: secure wazuh
+  shell:
+    cmd: "node htpasswd -c {{ wazuh_api_password }} {{ wazuh_api_user }}"
+    chdir: /var/ossec/api/configuration/auth
+  when: wazuh_api_password is defined and wazuh_api_password|length>0 and wazuh_api_user is defined
+  notify:
+    - restart wazuh-api
+    - restart wazuh-manager

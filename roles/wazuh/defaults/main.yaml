@@ -10,3 +10,6 @@ wazuh_api_install: false
 wazuh-api_pkgs:
   - nodejs
   - wazuh-api
+
+wazuh_api_user: wazuh
+wazuh_api_password: wazuh_api

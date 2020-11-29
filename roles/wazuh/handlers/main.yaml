@@ -1,1 +1,13 @@
 ---
+
+- name: restart wazuh-api
+  systemd:
+    state: restarted
+    name: restart wazuh-api
+    enabled: true
+
+- name: restart wazuh-manager
+  systemd:
+    state: restarted
+    name: restart wazuh-manager
+    enabled: true
