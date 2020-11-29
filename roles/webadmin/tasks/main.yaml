@@ -1,18 +1,42 @@
 ---
 
-- name: install dependencies
-  apt:
-    name: "{{ dependencies_pkgs_deb }}"
+- name: "add repo key"
+  apt_key:
+    url: http://www.webmin.com/jcameron-key.asc
+    state: present
   when: ansible_os_family == 'Debian'
 
-- name: install webadmin on Ubuntu/Debian
-  apt:
-    deb: http://www.webmin.com/download/deb/webmin-current.deb
+- name: "add webadmin repo"
+  apt_repository:
+    filename: webadmin
+    repo: deb http://download.webmin.com/download/repository sarge contrib
+    update_cache: yes
+    state: present
   when: ansible_os_family == 'Debian'
+
+- name: install pkgs
+  apt:
+    name: "{{ pkgs_deb }}"
+  when: ansible_os_family == 'Debian'
+
+- name: Import Webadmin RedHat/Centos Repo key
+  rpm_key:
+    state: present
+    key: http://www.webmin.com/jcameron-key.asc
+  when: ansible_os_family == 'RedHat'
+
+- name: add webadmin RedHat/Centos repo
+  yum_repository:
+    name: Webmin Distribution Neutral
+    description: webadmin repo
+    file: webadmin
+    mirrorlist: https://download.webmin.com/download/yum/mirrorlist
+    enabled: yes
+  when: ansible_os_family == 'RedHat'
 
 - name: install webadmin on RedHat/Centos
   yum:
-    name: https://prdownloads.sourceforge.net/webadmin/webmin-1.962-1.noarch.rpm 
+    name:  "{{ pkgs_rpm }}"
     state: present
   when: ansible_os_family == 'RedHat'
 

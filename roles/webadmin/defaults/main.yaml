@@ -2,7 +2,7 @@
 
 install_virtualmin: true
 
-dependencies_pkgs_deb:
+pkgs_deb:
   - python
   - apt-show-versions 
   - libapt-pkg-perl 
@@ -11,3 +11,11 @@ dependencies_pkgs_deb:
   - libnet-ssleay-perl 
   - curl
   - unzip
+  - webadmin
+
+pkgs_rpm:
+  - perl
+  - perl-Net-SSLeay
+  - openssl 
+  - perl-Encode-Detect
+  - webadmin
