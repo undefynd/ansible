@@ -1,0 +1,50 @@
+---
+
+- name: install dependencies
+  apt:
+    name: "{{ dependencies_pkgs_deb }}"
+  when: ansible_os_family == 'Debian'
+
+- name: install webadmin on Ubuntu/Debian
+  apt:
+    deb: http://www.webmin.com/download/deb/webmin-current.deb
+  when: ansible_os_family == 'Debian'
+
+- name: install webadmin on RedHat/Centos
+  yum:
+    name: https://prdownloads.sourceforge.net/webadmin/webmin-1.962-1.noarch.rpm 
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: install virtualmin
+  block:
+
+    - name: download virutalmin install sh
+      get_url:
+        url: http://software.virtualmin.com/gpl/scripts/install.sh
+        dest: /var/tmp/virtualmin_install.sh"
+    
+    - name: install virutalmin
+      shell: |
+        set timeout 300
+        spawn bash -c {/var/tmp/virtualmin_install.sh}
+
+        expect "Continue? (y/n)"
+        send "y\r"
+      when: ansible_memtotal_mb >= 1572
+    
+    - name: install virutalmin
+      shell: |
+        set timeout 300
+        spawn bash -c {/var/tmp/virtualmin_install.sh}
+
+        expect "Continue? (y/n)"
+        send "y\r"
+
+        expect "Would you like to continue? If you continue, you will be given(.*)"
+        send "y\r"
+
+        expect -re "Would you like for me to try to create a swap file?(.*)"
+        send "y\r"
+      when: ansible_memtotal_mb <= 1572
+  when: install_virtualmin

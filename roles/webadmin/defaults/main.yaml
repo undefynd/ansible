@@ -1,0 +1,13 @@
+---
+
+install_virtualmin: true
+
+dependencies_pkgs_deb:
+  - python
+  - apt-show-versions 
+  - libapt-pkg-perl 
+  - libauthen-pam-perl 
+  - libio-pty-perl 
+  - libnet-ssleay-perl 
+  - curl
+  - unzip
