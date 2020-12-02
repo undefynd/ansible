@@ -1,0 +1,118 @@
+---
+
+- name: create prometheus system group
+  group:
+    name: prometheus
+    system: yes
+    state: present
+
+- name: create prometheus system user
+  user:
+    system: yes
+    name: prometheus
+    group: prometheus
+    shell: /sbin/nologin
+
+
+- name: create /var/lib/prometheus
+  file:
+    path: /var/lib/prometheus
+    state: directory
+    mode: 0755
+    owner: prometheus
+    group: prometheus
+
+- name: create prometheus directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ prometheus_directories }}"
+
+- name: install prometheus dependencies
+  apt:
+    name: "{{ prometheus_dependencies }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'
+
+- name: check if prometheus is downloaded
+  stat:
+    path: "/var/tmp/{{ prometheus_download_url | basename }}"
+  register: prometheus_package
+
+- name: download prometheus for Linux on amd64
+  get_url:
+     url: "{{ prometheus_download_url }}"
+     dest: "/var/tmp/{{ prometheus_download_url | basename }}"
+     checksum: "{{ prometheus_checksum }}"
+  register: prometheus_download
+  when: not prometheus_package.stat.exists
+
+- name: unpack prometheus
+  unarchive:
+    src: "/var/tmp/{{ prometheus_download_url | basename }}"
+    dest: /var/tmp/
+    remote_src: yes
+  when: prometheus_download is changed
+  register: unpacked_prometheus
+
+- name: copy prometheus binaries to /usr/local/bin
+  copy:
+    src: "/var/tmp/{{ prometheus_download_url | basename | splitext | first | splitext | first }}/{{ item }}"
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop:
+    - prometheus
+    - promtool
+  when: unpacked_prometheus is changed
+
+- name: check if /etc/prometheus/consoles exists
+  stat:
+    path: /etc/prometheus/consoles
+  register: consoles
+
+- name: check if /etc/prometheus/console_libraries exists
+  stat:
+    path: /etc/prometheus/console_libraries
+  register: console_libraries
+
+- name: copy configs to /etc/prometheus
+  copy:
+    src: "/var/tmp/{{ prometheus_download_url | basename | splitext | first | splitext | first }}/{{ item }}"
+    dest: /etc/prometheus/
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - "consoles"
+    - "console_libraries"
+  when: unpacked_prometheus is changed and not consoles.stat.exists and not console_libraries.stat.exists
+
+- name: deploy prometheus config
+  template:
+    src: prometheus.yaml.j2
+    dest: /etc/prometheus/prometheus.yml
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart prometheus
+
+- name: deploy prometheus service file 
+  copy:
+    src: prometheus.service
+    dest: /etc/systemd/system/prometheus.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: 
+    - "systemd daemon reload"
+    - "start prometheus"

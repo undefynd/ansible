@@ -1,0 +1,29 @@
+---
+
+prometheus_dependencies:
+  - wget
+  - curl
+
+prometheus_download_url: "https://github.com/prometheus/prometheus/releases/download/v2.23.0/prometheus-2.23.0.linux-amd64.tar.gz"
+prometheus_checksum: sha256:0f54cefdb946852947e35d4db8cfce394911ff586486f927c3887db4183cb643
+prometheus_directories:
+  - "/etc/prometheus/"
+  - "/etc/prometheus/rules"
+  - "/etc/prometheus/rules.d"
+  - "/etc/prometheus/files_sd"
+
+prometheus_config:
+  global:
+    scrape_interval: 15s 
+    evaluation_interval: 15s 
+  alerting:
+    alertmanagers:
+    - static_configs:
+      - targets:
+        - alertmanager:9093
+  rule_files:
+     - "first_rules.yml"
+  scrape_configs:
+    - job_name: 'prometheus'
+      static_configs:
+      - targets: ['localhost:9090']

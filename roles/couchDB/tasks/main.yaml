@@ -27,4 +27,4 @@
     vtype: "{{ item.vtype }}"
   loop: "{{ couchdb_debconf|flatten(levels=1) }}"
   no_log: True
-  #when: couchdbInstalled is changed and configure_couchdb
+  when: couchdbInstalled is changed and configure_couchdb
