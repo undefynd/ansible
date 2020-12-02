@@ -1,0 +1,19 @@
+---
+
+- name: "install slapd, openldap"
+  apt:
+    name: slapd,ldap-utils,debconf
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  register: openldapInstalled
+
+- name: reconfigure slapd 
+  debconf:
+    name: slapd
+    question: "{{ item.question }}"
+    value: "{{ item.value }}"
+    vtype: "{{ item.vtype }}"
+  loop: "{{ slapd_debconf|flatten(levels=1) }}"
+  no_log: True
+  when: openldapInstalled is changed and configure_openldap
