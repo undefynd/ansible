@@ -1,0 +1,9 @@
+---
+
+- hosts: awx.vagrant.test
+  become: yes
+  user: vagrant
+  roles:
+    - docker-ce
+    - ansible
+    - awx

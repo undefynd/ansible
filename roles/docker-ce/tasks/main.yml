@@ -21,19 +21,24 @@
   notify:
     - start docker
 
+- name: create docker group
+  group:
+    name: docker
+    state: present
+
 - name: install docker compose
   block:
     - name: check if docker compose is installed
       stat:
         path: /usr/local/bin/docker-compose
-      register: dockercompose
+      register: docker_compose
 
     - name: install docker compose
       get_url:
         url: "{{ docker_compose_pkg }}"
         dest: /usr/local/bin/docker-compose
       register: docker_compose_download
-      when: not dockercompose.stat.exists
+      when: not docker_compose.stat.exists
 
     - name: set execute permissons
       file:

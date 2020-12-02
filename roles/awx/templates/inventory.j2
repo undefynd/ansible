@@ -1,0 +1,10 @@
+#{{ ansible_managed }}
+localhost ansible_connection=local ansible_python_interpreter="/usr/bin/env python3"
+
+[all:vars]
+
+{% if item.value is mapping %}
+{% for key, value in item.value.items() %}
+{{ key }}={{ value }}
+{% endfor %}
+{% endif %}

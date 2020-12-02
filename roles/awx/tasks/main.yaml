@@ -1,0 +1,83 @@
+---
+
+- name: check if python installed
+  stat:
+    path: /usr/bin/python
+  register: python
+
+- name: check if python3 installed
+  stat:
+    path: /usr/bin/python3
+  register: python3
+
+- name: check if ansible is installed
+  stat:
+    path: /usr/bin/ansible
+  register: ansible
+
+- name: check if docker is installed
+  stat:
+    path: /usr/bin/docker
+  register: docker
+
+- name: check if docker compose is installed
+  stat:
+    path: /usr/local/bin/docker-compose
+  register: docker_compose
+
+- name: install pip3 Ubuntu/Debian
+  apt:
+    name: python3-pip,python3-docker
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_distribution_major_version|int >=20
+
+- name: install pip Ubuntu/Debian
+  apt:
+    name: python-pip,python-docker
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_distribution_major_version|int < 20
+
+- name: install dependencies
+  apt:
+    name: "{{ awx_dependencies_pkgs }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: install requests pip3
+  pip: 
+    name: requests==2.14.2, docker-compose
+    state: present
+    executable: /usr/bin/pip3
+  when: python3.stat.exists and python_version == 3
+    
+- name: install requests via pip
+  pip: 
+    name: requests==2.14.2, docker-compose
+    state: present
+    executable: /usr/bin/pip
+  when: python.stat.exists and python_version == 2
+
+- name: download AWX
+  git:
+    repo: https://github.com/ansible/awx.git
+    depth: "50"
+    dest: "{{ awx_install_dir }}"
+    update: no
+
+- name: deploy awx install inventory
+  template:
+    src: inventory.j2
+    dest: "{{ awx_install_dir }}/installer/inventory"
+    mode: 0664
+  loop: "{{ awx_config|dict2items }}"
+
+- name: execute awx install playbook
+  shell:
+    cmd: /usr/bin/ansible-playbook -i inventory install.yml
+    chdir: "{{ awx_install_dir }}/installer/"
+    executable: /bin/bash

@@ -1,0 +1,68 @@
+---
+
+- name: add ansible repo key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 93C4A3FD7BB9C367
+    state: present
+  when: ansible_distribution_major_version|int < 20
+
+- name: "add ansible repo"
+  apt_repository:
+    filename: ansible
+    repo: "{{ ansible_repo }}"
+    update_cache: yes
+    state: present
+  when: ansible_distribution_major_version|int < 20 
+
+- name: install ansible
+  apt:
+    name: ansible
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: use_pip is defined and not use_pip
+
+- name: install ansible via pip
+  block:
+    
+    - name: check if python3 is installed
+      stat:
+        path: /usr/bin/python3
+      register: python3
+
+    - name: check if python exists
+      stat:
+        path: /usr/bin/python
+      register: python
+
+    - name: install pip3 Ubuntu/Debian
+      apt:
+        name: python3-pip
+        state: latest
+        update_cache: yes
+        cache_valid_time: 3600
+      when: python3.stat.exists and python_version == 'python3'
+
+    - name: install pip3 Ubuntu/Debian
+      apt:
+        name: python-pip
+        state: latest
+        update_cache: yes
+        cache_valid_time: 3600
+      when: python.stat.exists and python_version == 'python'
+
+    - name: install ansible pip3
+      pip: 
+        name: ansible
+        state: present
+        executable: /usr/bin/pip3
+      when: python3.stat.exists and python_version == 3
+    
+    - name: install ansible via pip
+      pip: 
+        name: ansible
+        state: present
+        executable: /usr/bin/pip
+      when: python.stat.exists and python_version == 2
+  when: use_pip|default(true)

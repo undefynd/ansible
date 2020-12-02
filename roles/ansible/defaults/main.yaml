@@ -1,0 +1,5 @@
+---
+
+use_pip: false
+python_version: 3
+ansible_repo: "deb http://ppa.launchpad.net/ansible/ansible/ubuntu {{ ansible_distribution_release }} main"
