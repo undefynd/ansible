@@ -1,0 +1,30 @@
+---
+- name: "add repo key"
+  apt_key:
+    url: "{{ couchdb_repo_key }}"
+    state: present
+
+- name: "add couchdb repo"
+  apt_repository:
+    filename: couchdb
+    repo: "{{ couchdb_repo }}"
+    update_cache: yes
+    state: present
+
+- name: "install couchdb"
+  apt:
+    name: "{{ couchdb_version }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  register: couchdbInstalled
+
+- name: reconfigure couchdb
+  debconf:
+    name: "{{ couchdb_version }}"
+    question: "{{ item.question }}"
+    value: "{{ item.value }}"
+    vtype: "{{ item.vtype }}"
+  loop: "{{ couchdb_debconf|flatten(levels=1) }}"
+  no_log: True
+  #when: couchdbInstalled is changed and configure_couchdb

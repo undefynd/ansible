@@ -1,0 +1,25 @@
+---
+couchdb_repo_key: "https://couchdb.apache.org/repo/bintray-pubkey.asc"
+couchdb_repo: "deb https://apache.bintray.com/couchdb-deb bionic main"
+couchdb_version: couchdb
+
+
+couchdb_debconf:
+  - question: couchdb/mode
+    value: standalone #clustered #standalone
+    vtype: select
+  - question: couchdb/nodename
+    value: couchdb@localhost
+    vtype: text
+  - question: couchdb/bindaddress
+    value: 0.0.0.0 
+    vtype: text
+  - question: couchdb/adminpass
+    value: admin1234
+    vtype: password
+  - question: couchdb/adminpass_again
+    value: admin1234
+    vtype: password
+  - question: couchdb/cookie
+    value: monster2
+    vtype: text
