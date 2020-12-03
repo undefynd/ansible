@@ -263,3 +263,14 @@ hosts:
     files:
       - source: "~/.ssh/id_rsa.pub"
         destination: "/home/vagrant/.ssh/authorized_keys"
+  - name: netbox.vagrant.test
+    box: *vagrant_box
+    box_check_update: false
+    ram: 2048
+    cpus: 1
+    private_network:
+      - ip_private: "192.168.7.53"
+        auto_config: true
+    files:
+      - source: "~/.ssh/id_rsa.pub"
+        destination: "/home/vagrant/.ssh/authorized_keys"

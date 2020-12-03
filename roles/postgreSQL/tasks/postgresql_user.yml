@@ -1,0 +1,24 @@
+---
+
+- name: create Users
+  postgresql_user:
+    name: "{{ item.name }}"
+    ssl_rootcert: "{{ item.ca_cert | default(omit) }}"
+    ssl_mode: "{{ item.ssl_mode | default(omit) }}"
+    login_user: "{{ item.login_user| default(postgreSQL_admin | default('postgres')) }}"
+    login_host: "{{ item.login_host|default('localhost') }}"
+    expires: "{{ item.expire | default(omit) }}"
+    db: "{{ item.db }}"
+    conn_limit: "{{ item.conn_limit| default(omit)}}"
+    login_unix_socket: "{{ item.login_unix_socket| default(omit) }}"
+    login_password: "{{ item.login_password | default(postgreSQL_admin_passwd|default(omit)) }}"
+    password: "{{ item.password }}"
+    port: "{{ item.port |default(5432)}}"
+    fail_on_user: "{{ item.fail_on_user | default(omit) }}" 
+    priv: "{{ item.priv | default(omit)}}"
+    no_password_changes: no 
+    state: "{{ item.state | default(omit) }}"
+    encrypted: yes 
+    role_attr_flags: "{{ item.role_attr_flags | default(omit) }}"
+  loop: "{{ postgreSQL_users | flatten(levels=1) }}"
+  when: postgreSQL_users is defined and postgreSQL_users|length>0

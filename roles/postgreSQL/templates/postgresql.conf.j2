@@ -1,0 +1,17 @@
+#{{ ansible_managed }}
+
+{% for key, value in postgreSQL_config.items() %}
+{% if value is string %}
+{% if value | regex_search('(\d{1,5}[A-Td-s]{1,4})') or value =='posix' %}
+{{ key }} = {{ value  }}
+{% else %}
+{{ key }} = '{{ value }}'
+{% endif %}
+{% else %}
+{% if value is boolean %}
+{{ key }} = {{ value | ternary('on', 'off')}}
+{% else %}
+{{ key }} = {{ value  }}
+{% endif %}
+{% endif %}
+{% endfor %}

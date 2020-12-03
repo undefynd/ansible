@@ -1,0 +1,28 @@
+---
+
+- name: manage databases
+  postgresql_db:
+    ssl_rootcert: "{{ item.ca_cert | default(omit) }}" 
+    conn_limit: "{{ item.conn_limit| default(omit) }}" 
+    dump_extra_args: "{{ item.dump_extra_args | default(omit)}}" #
+    encoding: "{{ item.encoding | default(omit)}}" 
+    lc_collate: "{{ item.lc_collate | default(omit) }}" 
+    lc_ctype: "{{ item.lc_ctype | default(omit) }}" 
+    login_host: "{{ item.login_host|default('localhost') }}"  
+    login_password: "{{ item.login_password | default(postgreSQL_admin_passwd|default(omit)) }}"
+    login_unix_socket: "{{ item.login_unix_socket| default(omit) }}"
+    login_user: "{{ item.login_user| default(postgreSQL_admin | default('postgres')) }}"
+    maintenance_db: "{{ item.maintenance_db |default('postgres') }}"
+    name: "{{ item.name }}"
+    owner: "{{ item.owner | default(omit) }}"
+    port: "{{ item.port |default(5432)}}"
+    session_role: "{{ item.session_role| default(omit) }}"
+    ssl_mode: "{{ item.ssl_mode | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
+    tablespace: "{{ item.tablespace| default(omit) }}"
+    target: "{{ item.target | default(omit)}}"
+    target_opts: "{{ item.target_opts| default(omit) }}"
+    template: "{{ item.template| default(omit) }}"
+    trust_input: "{{ item.trust_input|default(omit) }}"
+  loop: "{{ postgreSQL_databases | flatten(levels=1) }}"
+  when: postgreSQL_databases is defined and postgreSQL_databases|length>0 and item.state is not defined or (item.state == 'present' or item.state == 'absent')

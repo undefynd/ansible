@@ -1,0 +1,9 @@
+---
+
+- hosts: netbox.vagrant.test
+  become: yes
+  user: vagrant
+  roles:
+    - postgresql
+    - redis
+    - netbox

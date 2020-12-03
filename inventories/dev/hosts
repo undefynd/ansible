@@ -21,6 +21,7 @@ ca.vagrant.test
 pdns.vagrant.test
 icinga2.vagrant.test
 awx.vagrant.test
+netbox.vagrant.test
 
 [consul]
 consul01.vagrant.test

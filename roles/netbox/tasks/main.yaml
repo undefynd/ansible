@@ -1,0 +1,108 @@
+---
+
+- name: check if postgresql is installed
+  stat:
+    path: /usr/bin/psql
+  register: psql
+
+- name: install libpq-dev required by netbox
+  apt:
+    name: libpq-dev
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: psql.stat.exists
+
+- name: check if redis is installed
+  stat:
+    path: /usr/bin/redis-server
+  register: redis
+
+- name: install redis required by netbox
+  apt:
+    name: redis-server
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: redis.stat.exists
+  
+- name: install netbox dependencies
+  apt:
+    name: "{{ netbox_dependencies }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: create netbox system group
+  group:
+    name: netbox
+    system: yes
+    state: present
+
+- name: create netbox system user
+  user:
+    name: netbox
+    system: yes
+    state: present
+    group: netbox
+
+- name: create /opt/netbox
+  file:
+    path: /opt/netbox/
+    state: directory
+
+- name: checkout netbox github repo for easy updates and install
+  git:
+    repo: "{{ netbox_repo }}"
+    dest: /opt/netbox/
+
+- name: set media dir file permissions
+  file:
+    path: /opt/netbox/netbox/media/
+    recurse: yes
+    owner: netbox
+    group: netbox
+
+- name: check if configuration.py exists
+  stat:
+    path: /opt/netbox/netbox/netbox/configuration.py
+  register: configuration
+
+- name: deploy netbox config
+  copy:
+    src: configuration.py
+    dest: /opt/netbox/netbox/netbox/configuration.py
+  notify: restart netbox
+
+- name: run netbox upgrade script
+  shell:
+    cmd: /opt/netbox/upgrade.sh
+    executable: /bin/bash
+
+- name: "create super user"
+  shell: . /opt/netbox/venv/bin/activate && echo "from django.contrib.auth.models import User; User.objects.create_superuser('{{ netbox_admin_user }}', '{{ netbox_admin_email }}', '{{ netbox_admin_passwd }}')" | python3 /opt/netbox/netbox/manage.py shell
+  when: not configuration.stat.exists
+
+- name: copy gunicorn config
+  copy:
+    src: /opt/netbox/contrib/gunicorn.py
+    dest: /opt/netbox/gunicorn.py
+    remote_src: yes
+
+- name: copy systemd files
+  copy:
+    src: "/opt/netbox/contrib/{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    remote_src: yes
+  loop:
+    - "netbox.service"
+    - "netbox-rq.service"
+  register: systemd
+  notify:
+    - "start netbox"
+    - "start netbox-rq"
+
+- name: reload systemd daemon
+  systemd:
+    daemon-reload: yes
+  when: systemd is changed

@@ -1,0 +1,25 @@
+---
+
+- name: start netbox
+  systemd:
+    name: netbox
+    enabled: yes
+    state: started
+
+- name: start netbox-rq
+  systemd:
+    name: netbox-rq
+    enabled: yes
+    state: started
+
+- name: restart netbox
+  systemd:
+    name: netbox
+    enabled: yes
+    state: restarted
+
+- name: restart netbox-rq
+  systemd:
+    name: netbox-rq
+    enabled: yes
+    state: restarted
