@@ -1,0 +1,26 @@
+---
+
+##- name: install Unbound DNS
+#  apt:
+#    name: unbound,resolvconf
+#    state: latest
+#    update_cache: yes
+#    cache_valid_time: 3600
+#  when: ansible_os_family == "Debian"
+
+- name: deploy unbound config files
+  template:
+    src: unbound.conf.j2
+    dest: "/etc/unbound/unbound.conf.d/{{ item.key }}"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ unbound_config|dict2items }}"
+  notify: restart unbound
+
+- name: create log file
+  file:
+    path: /var/log/unbound.log
+    state: touch
+    owner: unbound
+    group: unbound

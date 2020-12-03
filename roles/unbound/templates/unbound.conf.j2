@@ -1,0 +1,24 @@
+{% for key, value in item.value.items() %}
+{% if value is mapping %}
+{{ key }}:
+{% for key, value in value.items() %}
+{% if value is boolean %}
+{% if value %}
+{{ key | indent(5,true) }}: yes
+{% else %}
+{{ key | indent(5,true) }}: no
+{% endif %}
+{% elif value is iterable and (value is not string and value is not mapping) %}
+{% for item in value %}
+{{ key | indent(5,true)}}: {{ item }}
+{% endfor %}
+{% else %}
+{{ key | indent(5,true) }}: {{ value }}
+{% endif %}
+{% endfor %}
+{% elif value is iterable and (value is not string and value is not mapping) %}
+{% for item in value %}
+{{ key }}: "{{ item }}"
+{% endfor %}
+{% endif %}
+{% endfor %}

@@ -1,0 +1,38 @@
+---
+
+
+unbound_config:
+  server.conf:
+    server:
+      interface: 
+        - "127.0.0.1"
+        - "192.168.7.26"
+      access-control:
+        - "127.0.0.1 allow_snoop"
+        - "192.168.7.1 allow_snoop"
+      verbosity: 0
+      hide-identity: yes
+      hide-version: yes
+      prefetch: yes
+      do-ip4: yes
+      do-ip6: no
+      do-udp: yes
+      do-tcp: yes
+      num-threads: 2
+      outgoing-range: 512
+      num-queries-per-thread: 1024
+      msg-cache-size: 16m
+      rrset-cache-size: 32m
+      cache-max-ttl: 86400
+      infra-host-ttl: 60
+      infra-lame-ttl: 120
+      username: unbound
+      directory: "/etc/unbound"
+      logfile: "/var/log/unbound.log"
+      use-syslog: no
+      so-rcvbuf: 4m
+      so-sndbuf: 4m
+  domain.conf:
+    local-data:
+      - "ubuntu.com A 127.0.0.1"
+      - "node02 A 192.168.7.26"
