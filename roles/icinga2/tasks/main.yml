@@ -192,6 +192,20 @@
         executable: /bin/bash
       when: not icingaweb2subdir.stat.exists
 
+    - name: check if /etc/icingaweb2/modules/translation exists
+      stat:
+        path: /etc/icingaweb2/modules/translation
+      register: translation
+
+    - name: create /etc/icingaweb2/modules/translation
+      file:
+        path: /etc/icingaweb2/modules/translation
+        state: directory
+        owner: root
+        group: icingaweb2
+        mode: 02770
+      when: not translation.stat.exists
+
     - name: create icingaweb2 monitoring dir
       file:
         path: /etc/icingaweb2/modules/monitoring

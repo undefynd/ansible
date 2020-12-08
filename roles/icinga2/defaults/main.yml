@@ -10,6 +10,8 @@ icinga2_packages:
   - monitoring-plugins
   - icinga2-ido-mysql
   - icingaweb2
+  - icingaweb2-module-monitoring
+  - icingaweb2-module-doc
   - icingacli
   - php7.4
   - php7.4-intl
@@ -93,5 +95,10 @@ icingaweb2_configuration:
       resource: "icinga2"
   modules/monitoring/commandtransports.ini:
     icinga2:
-    transport: "local"
-    path: "/var/run/icinga2/cmd/icinga2.cmd"
+      transport: "local"
+      path: "/var/run/icinga2/cmd/icinga2.cmd"
+  modules/translation/config.ini:
+    translation:
+      msgmerge: "/usr/bin/msgmerge"
+      xgettext: "/usr/bin/xgettext"
+      msgfmt: "/usr/bin/msgfmt"
