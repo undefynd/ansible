@@ -1,0 +1,5 @@
+#{{ ansible_managed }}
+# ACME-challenge
+location ^~ /.well-known/acme-challenge/ {
+    root {{ acme_challenge_dir|default('/var/www/_letsencrypt') }};
+}

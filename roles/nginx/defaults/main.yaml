@@ -1,0 +1,25 @@
+---
+
+nginx_config:
+  general:
+    expiration_for_assests: 7d
+    expiration_for_media: 7d
+    expiration_for_svgs: 7d
+    expiration_for_fonts: 7d
+
+use_letsencrypt: true
+acme_challenge_dir: /var/www/_letsencrypt 
+letsencrypt_email: "robert.schneider94@gmx.de"
+use_certbot: true
+acme_ca: step
+acme_ca_server: step
+acme_ca_port: 443
+
+nginx_default_template: sites-available/reverse_proxy.conf.j2
+
+nginx_sites:
+  node01.conf:
+    domain: node01.vagrant.test
+    wwwsubdomain: true
+    redirectsubdomains: true
+    local_port: 8000

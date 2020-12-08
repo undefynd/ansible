@@ -1,0 +1,144 @@
+---
+
+- name: install nginx Debian/Ubuntu
+  apt:
+    name: nginx
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'
+  register: nginx_install
+
+- name: create nginx include conifg directory
+  file:
+    path: /etc/nginx/nginxconfig
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: configure nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: deploy config files in config directory
+  template:
+    src: "nginxconfig/{{ item }}"
+    dest: "/etc/nginx/nginxconfig/{{ item }}"
+    mode: 0777
+    owner: root
+    group: root
+  loop:
+    - general.conf.j2
+    - security.conf.j2
+
+- name: deploy lets encrypt config
+  block:
+    - name: create {{ acme_challenge_dir|default('/var/www/_letsencrypt') }} to challenge acme requests
+      file:
+        path: "{{ acme_challenge_dir|default('/var/www/_letsencrypt') }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: 0755
+
+    - name: deploy lets encrypt ACME-challenge nginx config
+      template:
+        src: nginxconfig/letsencrypt.conf.j2
+        dest: /etc/nginx/nginxconfig/letsencrypt.conf
+        mode: 0777
+        owner: root
+        group: root
+  when: use_letsencrypt
+
+- name: check if proxy config exists
+  stat:
+    path: /etc/nginx/nginxconfig/proxy.conf
+  register: proxyconf
+
+- name: deploy nginx proxy config
+  template:
+    src: nginxconfig/proxy.conf.j2
+    dest: /etc/nginx/nginxconfig/proxy.conf
+    mode: 0777
+    owner: root
+    group: root
+  when: not proxyconf.stat.exists and 'proxy' in item.value.template | default(nginx_default_template)
+  run_once: true
+  loop: "{{ nginx_sites|dict2items }}"
+
+- name: deploy nginx sites
+  template:
+    src: "{{ item.value.template | default(nginx_default_template) }}"
+    dest: "/etc/nginx/sites-available/{{ item.key }}"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ nginx_sites|dict2items }}"
+
+- name: activate nginx sites
+  file:
+    src: "/etc/nginx/sites-available/{{ item.key }}"
+    dest: "/etc/nginx/sites-enabled/{{ item.key }}"
+    owner: root
+    group: root
+    state: link
+    mode: 0777
+  loop: "{{ nginx_sites|dict2items }}"
+  notify: reload nginx
+  register: sites_enabled
+
+- name: deactivate default sites
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  when: sites_enabled is changed
+
+- name: Generate DH Parameters with a different size (2048 bits)
+  openssl_dhparam:
+    path: /etc/nginx/dhparam.pem
+    size: 2048
+
+- name: install certbot
+  block:
+    - name: install certbot packages
+      apt:
+        name: certbot, python3-certbot-nginx
+        state: latest
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == 'Debian'
+    
+    - name: Obtain SSL certificates from Let's Encrypt
+      shell:
+        cmd: "certbot certonly --webroot -d {{ item.value.domain | default(ansible_fqdn) }} --email {{ letsencrypt_email }} -w {{ acme_challenge_dir|default('/var/www/_letsencrypt') }} -n --agree-tos --force-renewal"
+        executable: /bin/bash
+      loop: "{{ nginx_sites|dict2items }}"
+      when: acme_ca == 'letsencrypt'
+      notify:
+        - reload nginx 
+        - start nginx
+
+    - name: Obtain SSL certificates from step-ca
+      shell:
+        cmd: "certbot certonly --webroot -d {{ item.value.domain | default(ansible_fqdn) }} --email {{ letsencrypt_email }} -w {{ acme_challenge_dir|default('/var/www/_letsencrypt') }} -n --agree-tos --force-renewal --server https:{{ acme_ca_server }}:{{ acme_ca_port }}/acme/acme/directory" 
+        executable: /bin/bash
+      loop: "{{ nginx_sites|dict2items }}"
+      when: acme_ca != 'letsencrypt'
+      notify:
+        - reload nginx 
+        - start nginx
+
+    - name: deploy nginx reload post hook
+      copy:
+        src: scripts/nginx-reload.sh
+        dest: /etc/letsencrypt/renewal-hooks/post/nginx-reload.sh
+        owner: root
+        group: root
+        mode: 0755
+      when: post_dir.stat.exists
+  when: use_certbot

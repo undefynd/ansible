@@ -1,0 +1,88 @@
+#{{ ansible_managed }}
+{% set variable_list = [] %}
+{{ variable_list.append(item.value) }}
+{% for i in variable_list %}
+{% if i.wwwsubdomain|default(false) %}
+{% set domain = "www."+i.domain %}
+{% else %}
+{% set domain = i.domain %}
+{% endif %}
+{% if i.custom_certificate is defined %}
+{% set letsencrypt = not i.custom_certificate| default(use_letsencrypt) %}
+{% else %}
+{% set letsencrypt = i.custom_certificate| default(use_letsencrypt) %}
+{% endif %}
+{% set custom_certificate = i.custom_certificate|default(not use_letsencrypt) %}
+{% set ssl_certificate = i.ssl_certificate|default('/etc/nginx/ssl/'+ i.domain| default( ansible_fqdn) +'.crt')%}
+{% set ssl_certificate_key = i.ssl_certificate_key|default('/etc/nginx/ssl/'+ i.domain| default( ansible_fqdn) +'.key')%}
+
+server {
+    listen                  {{ i.ipv4_listen|default('') }}:443 ssl http2;
+    listen                  [{{ i.ipv6_listen|default('::') }}]:443 ssl http2;
+    server_name             {{ domain | default( ansible_fqdn )}};
+    root                    {{ i.path|default('/var/www/')}}{{ i.domain }}/{{ i.documentroot |default('public')}};
+
+    # SSL
+{% if letsencrypt|default(true) and not custom_certificate|default(false) %}
+    ssl_certificate         /etc/letsencrypt/live/{{ i.domain| default( ansible_fqdn ) }}/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/{{ i.domain| default( ansible_fqdn ) }}/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/{{ i.domain| default( ansible_fqdn ) }}/chain.pem;
+{% elif custom_certificate|default(false) and not letsencrypt|default(false) %}
+    ssl_certificate     {{ ssl_certificate }};
+    ssl_certificate_key {{ ssl_certificate_key }};
+{% endif %}
+    # security
+    include                 nginxconfig/security.conf;
+
+{% if domain_logging|default(false) %}
+    # logging
+    access_log          /var/log/nginx/{{ i.domain| default( ansible_fqdn ) }}.access.log;
+    error_log           /var/log/nginx/{{ i.domain| default( ansible_fqdn ) }}.error.log warn;
+{% endif %}
+    # index.php
+    index                   index.php;
+
+    # reverse proxy
+    location / {
+        proxy_pass http://127.0.0.1:{{ i.local_port }};
+        include    nginxconfig/proxy.conf;
+    }
+
+    # additional config
+    include nginxconfig/general.conf;
+}
+
+# subdomains redirect
+server {
+    listen                  {{ i.ipv4_listen|default('') }}:443 ssl http2;
+    listen                  [{{ i.ipv6_listen|default('::') }}]:443 ssl http2;
+    server_name             *.{{ i.domain }};
+
+    # SSL
+{% if letsencrypt|default(true) and not custom_certificate|default(false) %}
+    ssl_certificate         /etc/letsencrypt/live/{{ i.domain| default( ansible_fqdn ) }}/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/{{ i.domain| default( ansible_fqdn ) }}/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/{{ i.domain| default( ansible_fqdn ) }}/chain.pem;
+{% elif custom_certificate|default(false) and not letsencrypt|default(false) %}
+    ssl_certificate     {{ ssl_certificate }};
+    ssl_certificate_key {{ ssl_certificate_key }};
+{% endif %}
+    return      301 https://{{ domain }}$request_uri;
+}
+
+# HTTP redirect
+server {
+    listen      {{ i.ipv4_listen|default('') }}:80;
+    listen      [{{ i.ipv6_listen|default('::') }}]:80;
+    server_name .{{ i.domain }};
+{% if letsencrypt|default(true) and not custom_certificate|default(false) %}
+    include     nginxconfig/letsencrypt.conf;
+
+    location / {
+        return 301 https://{{ domain }}$request_uri;
+    }
+{% else %}
+    return 301 https://{{ domain }}$request_uri;
+{% endif %}
+}
+{% endfor %}
