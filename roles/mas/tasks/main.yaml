@@ -1,0 +1,28 @@
+---
+
+- name: check if mas is installed
+  stat:
+    path: /usr/local/bin/mas
+  register: max_binary
+
+- name: check if apple id is logged in
+  shell: 
+    cmd: /usr/local/bin/mas account
+  register: account
+
+- name: manage appstore applications
+  block: 
+    - name: install applications and upgrade from the appstore
+      mas:
+        id: "{{ mas_applications }}"
+        state: present
+        upgrade_all: yes
+      when: ansible_distribution == "MacOSX" and ansible_pkg_mgr == "homebrew"
+
+    - name: remove appstore applications
+      mas:
+        id: "{{ remove_mas_applications }}"
+        state: absent
+      become: yes
+      when: ansible_distribution == "MacOSX" and ansible_pkg_mgr == "homebrew"
+  when: max_binary.stat.exists and account.stdout == apple_id

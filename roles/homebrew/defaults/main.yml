@@ -1,4 +1,5 @@
 ---
 
-brew_pkgs: []
-rm_brew_pkgs: []
+homebrew_taps: []
+homebrew_pkgs: []
+rm_homebrew_pkgs: []

@@ -1,13 +1,23 @@
 ---
 
+- name: check if brew is installed
+  stat:
+    path: /usr/local/bin/brew
+  register: brew
+
+- name: install brew if not installed
+  shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  when: not brew.stat.exists
+  register: brew_installed
+
 - name: "install packages via homebrew cask"
   homebrew_cask:
-    name: "{{ cask_pkgs }}"
+    name: "{{ homebrew_cask_pkgs }}"
     state: present
-  when: cask_pkgs is defined
+  when: homebrew_cask_pkgs is defined and brew.stat.exists or brew_installed is changed
 
 - name: "remove packages via homebrew cask"
   homebrew_cask:
-    name: "{{ rm_cask_pkgs }}"
+    name: "{{ rm_homebrew_cask_pkgs }}"
     state: absent
-  when: rm_cask_pkgs is defined
+  when: rm_homebrew_cask_pkgs is defined and brew.stat.exists or brew_installed is changed

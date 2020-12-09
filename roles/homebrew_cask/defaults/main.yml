@@ -1,4 +1,4 @@
 ---
 
-cask_pkgs: []
-rm_cask_pkgs: []
+homebrew_cask_pkgs: []
+rm_homebrew_cask_pkgs: []

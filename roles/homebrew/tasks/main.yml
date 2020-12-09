@@ -1,13 +1,30 @@
 ---
 
+- name: check if brew is installed
+  stat:
+    path: /usr/local/bin/brew
+  register: brew
+
+- name: install brew if not installed
+  shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  when: not brew.stat.exists
+  register: brew_installed
+
+- name: Tap a Homebrew repository, state present
+  homebrew_tap:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ homebrew_taps }}"
+  when: brew.stat.exists or brew_installed is changed
+
 - name: "install packages via homebrew"
   homebrew:
-    name: "{{ brew_pkgs }}"
+    name: "{{ homebrew_pkgs }}"
     state: present
-  when: brew_pkgs is defined
+  when: homebrew_pkgs is defined and brew.stat.exists or brew_installed is changed
 
 - name: "remove packages via homebrew"
   homebrew:
-    name: "{{ rm_brew_pkgs | default( omit )}}"
+    name: "{{ rm_homebrew_pkgs | default( omit )}}"
     state: absent
-  when: rm_brew_pkgs is defined
+  when: rm_homebrew_pkgs is defined brew.stat.exists or brew_installed is changed

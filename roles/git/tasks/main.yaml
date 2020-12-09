@@ -1,0 +1,14 @@
+---
+
+- name: check if git is installed
+  stat:
+    path: /usr/local/bin/git
+  register: git
+
+- name: clone repo/repos
+  git:
+    repo: "{{ item.repo }}"
+    dest: "{{ item.dest }}"
+    version: "{{ item.version|default(omit )}}"
+  loop: "{{ repositories |flatten(levels=1) }}"
+  when: git.stat.exists

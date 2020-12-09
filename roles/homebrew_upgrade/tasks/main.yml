@@ -1,6 +1,12 @@
 ---
 
+- name: check if brew is installed
+  stat:
+    path: /usr/local/bin/brew
+  register: brew
+
 - name: "update homebrew and all packages"
   homebrew:
     update_homebrew: yes
     upgrade_all: yes
+  when: keep_brew_up_to_date and brew.stat.exists
