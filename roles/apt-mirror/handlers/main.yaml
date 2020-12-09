@@ -1,0 +1,6 @@
+---
+
+- name: enable apache2
+  systemd:
+    name: apache2
+    enabled: yes

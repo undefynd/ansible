@@ -1,0 +1,43 @@
+---
+
+- name: install apache2
+  apt:
+    name: apache2
+    state: latest
+  notify: enabled apache2
+
+- name: create required directories
+  file:
+    path: "/var/www/html/{{ item }}"
+    state: directory
+    owner: www-data
+    group: www-data
+  loop:
+    - "ubuntu"
+    - "ubuntu/var"
+
+- name: install apt-mirror
+  apt:
+    name: apt-mirror
+    state: latest
+
+- name: deploy configuration file
+  template:
+    src: mirror.list.j2
+    dest: /etc/apt/mirror.list
+    mode: 0644
+    owner: root
+    group: root
+
+- name: copy postmirror.sh to /var/www/html/ubuntu/var/
+  copy:
+    src: /var/spool/apt-mirror/var/postmirror.sh
+    dest: /var/www/html/ubuntu/var/postmirror.sh
+    remote_src: yes
+
+- name: Ensure a job that runs at 2 and 5 exists. Creates an entry like "0 5,2 * * ls -alh > /dev/null"
+  cron:
+    name: "apt-mirror"
+    minute: "0"
+    hour: "2"
+    job: "/usr/bin/apt-mirror"

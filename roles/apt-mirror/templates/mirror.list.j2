@@ -1,0 +1,14 @@
+#{{ ansible_managed }}
+
+############# config ##################
+{% for key, value in mirror_config.items() %}
+{% if key != 'repo' %}
+set {{ key }} {{ value  }}
+{% endif %}
+{% if value is iterable and (value is not string and value is not mapping) %}
+#############  end config ##################
+{% for item in value %}
+{{ item }}
+{% endfor %}
+{% endif %}
+{% endfor %}
