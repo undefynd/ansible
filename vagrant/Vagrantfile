@@ -14,24 +14,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # |
   # | :::::: Vagrant Plugins
   # |
-  config.vagrant.plugins = ["vagrant-vbguest"]
+  config.vagrant.plugins = [{"vagrant-vbguest" => {"version" => "0.28.0"}}, {"landrush" => {"version" => "1.3.2"}}]
 
   if Vagrant.has_plugin?("vagrant-vbguest")
-    config.vbguest.auto_update = servers["vagrant-vbguest"]
+    config.vbguest.auto_update = servers["vagrant-vbguest"]||= true
   end
 
   if Vagrant.has_plugin?("landrush")
     config.landrush.enabled = servers["landrush"]["enabled"]
     config.landrush.guest_redirect_dns = servers["landrush"]["guest_redirect_dns"]
     config.landrush.tld = servers["landrush"]["tld"]
-  end
-
-  if Vagrant.has_plugin?("vagrant-hostmanager")
-    config.hostmanager.enabled = servers["hostmanager"]["enabled"]
-    config.hostmanager.manage_host = servers["hostmanager"]["manage_host"]
-    config.hostmanager.manage_guest = servers["hostmanager"]["manage_guest"]
-    config.hostmanager.ignore_private_ip = servers["hostmanager"]["ignore_private_ip"]
-    config.hostmanager.include_offline = servers["hostmanager"]["include_offline"]
   end
 
   servers["hosts"].each do |server|

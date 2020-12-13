@@ -6,14 +6,7 @@ vagrant_box: &vagrant_box "ubuntu/focal64"
 centos_box: &centos_box "bento/centos-8.2"
 # |
 
-vagrant-vbguest: false
-
-hostmanager:
-  enabled: true
-  manage_host: true
-  manage_guest: true
-  ignore_private_ip: false
-  include_offline: true
+vagrant-vbguest: true
 
 landrush:
   enabled: true
@@ -198,7 +191,7 @@ hosts:
       - source: "~/.ssh/id_rsa.pub"
         destination: "/home/vagrant/.ssh/authorized_keys"
   - name: node01.vagrant.test
-    box: *vagrant_box
+    box: centos/8 #*vagrant_box 
     box_check_update: false
     ram: *machine_ram
     cpus: *machine_cpu

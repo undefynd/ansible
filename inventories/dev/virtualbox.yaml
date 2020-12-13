@@ -1,0 +1,20 @@
+plugin: community.general.virtualbox
+settings_password_file: ~/virtulbox/secrets
+network_info_path: "/VirtualBox/GuestInfo/Net/1/V4/IP"
+query:
+  logged_in_users: /VirtualBox/GuestInfo/OS/LoggedInUsersList
+compose:
+  ansible_connection: ('indows' in vbox_Guest_OS)|ternary('winrm', 'ssh')
+keyed_groups:
+  - prefix: ''
+    key: vbox_Guest_OS|replace(' (64-bit)','')|lower
+    
+groups:
+  node: "'node' in (inventory_hostname)"
+  playground: "'node' in (inventory_hostname)"
+  consul: "'consul' in (inventory_hostname)"
+  vault: "'vault' in (inventory_hostname)"
+  web: "'web' in (inventory_hostname)"
+  rabbitmq: "'rmq' in (inventory_hostname)"
+  mango: "'mongo' in (inventory_hostname)"
+  db: "'db' in (inventory_hostname)"
