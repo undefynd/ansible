@@ -18,3 +18,8 @@ groups:
   rabbitmq: "'rmq' in (inventory_hostname)"
   mango: "'mongo' in (inventory_hostname)"
   db: "'db' in (inventory_hostname)"
+  ca: "'ca' in (inventory_hostname)"
+  powerdns: "'pdns' in (inventory_hostname)"
+  netbox: "'netbox' in (inventory_hostname)"
+  icinga: "'icinga' in (inventory_hostname)"
+  awx: "'awx' in (inventory_hostname)"
