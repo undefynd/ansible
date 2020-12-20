@@ -18,3 +18,22 @@
     state: latest
     update_cache: yes
     cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'
+
+- name: install vagrant plugins
+  shell:
+    cmd: "vagrant plugin install {{ item }}"
+  loop: "{{ vagrant_plugins }}"
+  when: vagrant_plugins is defined and vagrant_plugins|length > 0
+
+- name: uninstall vagrant plugins
+  shell:
+    cmd: "vagrant plugin uninstall {{ item }}"
+  loop: "{{ vagrant_plugins_remove }}"
+  when: vagrant_plugins_remove is defined and vagrant_plugins_remove|length > 0
+
+- name: add vagrant boxes
+  shell:
+    cmd: "vagrant box add {{ item }}"
+  loop: "{{ vagrant_boxes }}"
+  when: vagrant_boxes is defined and vagrant_boxes|length > 0
