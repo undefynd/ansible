@@ -175,6 +175,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       end
 
+      # |
+      # | :::::: Folder Sync
+      # |
+      if server["disks"]
+        server['disks'].each do |disks|
+          srv.vm.disk :disk, 
+          name: disks['name'], 
+          size: disks['size']
+        end
+      end
+
 # | ············································································
 # | : Provisioning
 # | ············································································
