@@ -12,29 +12,26 @@ ssl_true: true
 bootstrap_acl: true
 dc: "vagrant"
 
-consul_server:
-    datacenter: "{{ dc }}"
+consul_config:
+  config.hcl:
+    datacenter: "vagrant"
     data_dir: "/opt/consul"
     encrypt: "n9fCNIgsYLU8s+LZ4nrlyytG+fWGrTUI5LUc2u5QuWA="
     ca_file: "/etc/consul.d/consul-agent-ca.pem"
-    cert_file: "/etc/consul.d/{{ dc }}-server-consul-{{ groups['consul'].index(inventory_hostname) }}.pem"
-    key_file:  "/etc/consul.d/{{ dc }}-server-consul-{{ groups['consul'].index(inventory_hostname) }}-key.pem"
+    cert_file: "/etc/consul.d/vagrant-server-consul-{{ groups['consul'].index(inventory_hostname) }}.pem"
+    key_file:  "/etc/consul.d/vagrant-server-consul-{{ groups['consul'].index(inventory_hostname) }}-key.pem"
     verify_incoming: true
     verify_outgoing: true
     verify_server_hostname: true
-    acl: |
-      {
-        enabled = true 
-        default_policy = "allow"
-        enable_token_persistence = true
-      }
-    performance: |
-      -{
-        raft_multiplier =  1
-      }
-    retry_join: ["192.168.7.19"]
+    acl:
+    - default_policy: allow
+      enable_token_persistence: true
+      enabled: true
+    performance:
+    - raft_multiplier: 1
+    retry_join: ["192.168.7.19", "192.168.7.18", "192.168.7.17"]
     server: true
     bootstrap_expect: 3
     ui: true
-    client_addr: "0.0.0.0"
+    client_addr: 0.0.0.0
     bind_addr:  "{{'{{'}}GetInterfaceIP \"eth0\"{{'}}'}}"

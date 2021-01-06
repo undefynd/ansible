@@ -1,21 +1,46 @@
-# Managed by Ansible
+#{{ ansible_managed }}
 
-{% for key, value in consul_server.items() %}
+{% for key, value in item.value.items() %}
+{% if value is iterable and (value is not string and value is not mapping) %}
+{% for item in value %}
+{% if item is string %}
+{% if loop.index == value|length %}
+{{ key }} = {{ value | replace("'", '"')}} 
+{% endif %}
+{% endif %}
+{% if item is mapping %}
+{{ key }} = {
+{% for k,v in item.items() %}
+{% if v is iterable and (v is not string and v is not mapping) %}
+{% for item in v %}
+{% if item is mapping %}
+{{ k|indent(2, true) }} = {
+{% for key, value in item.items() %}
 {% if value is string %}
-{% if '{' in value %}
-{% if '-{' in value %}
-{{ key }} {{ value|replace('-{','{') }}
+{{ key|indent(4,true) }} = "{{ value }}"
 {% else %}
-{{ key }} = {{ value }}
+{{ key|indent(4,true) }} = {{ value|lower }}
 {% endif %}
+{% endfor %}
+  }
+{% endif %}
+{% endfor %}
 {% else %}
+{% if v is string %}
+{{ k| indent(2,true) }} = "{{ v }}"
+{% else %}
+{{ k| indent(2,true) }} = {{ v|lower }}
+{% endif %}
+{% endif %}
+{% endfor %}
+}
+{% endif %}
+{% endfor %}
+{% else %}
+{% if value is string %}
 {{ key }} = "{{ value }}"
-{% endif %}
 {% else %}
-{% if value is boolean %}
-{{ key }} = {{ value | replace('\'','"')|lower}}
-{% else %}
-{{ key }} = {{ value | replace('\'','"')}}
+{{ key }} = {{ value|lower }}
 {% endif %}
 {% endif %}
 {% endfor %}

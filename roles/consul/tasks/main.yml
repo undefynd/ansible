@@ -38,10 +38,11 @@
   - name: Create the configurations for consul
     template:
       src: consul.hcl.j2
-      dest: "{{ consul_conf_dir }}/consul.hcl"
+      dest: "{{ consul_conf_dir }}/{{ item.key }}"
       owner: consul
       group: consul
       mode: 0644
+    loop: {{ consul_config| dict2items }}
     notify:
       - restart consul
   when: ansible_fqdn in groups['consul']

@@ -69,9 +69,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           if server["ram"] == "auto"
             host = RbConfig::CONFIG['host_os']
             if host =~ /darwin/
-              mem = `sysctl -n hw.memsize`.to_i / 1024 / 1024 / 4
+              mem = `sysctl -n hw.memsize`.to_i / 1024 / 1024 / 8
             elsif host =~ /linux/
-              mem = `grep 'MemTotal' /proc/meminfo | sed -e 's/MemTotal://' -e 's/ kB//'`.to_i / 1024 / 4
+              mem = `grep 'MemTotal' /proc/meminfo | sed -e 's/MemTotal://' -e 's/ kB//'`.to_i / 1024 / 8
             else
               mem = 1024
             end
@@ -82,20 +82,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         else
           vb.memory = 512
         end
-        if defined? server["cpus"]
-          if server["cpus"] == "auto"
-              host = RbConfig::CONFIG['host_os']
-              if host =~ /darwin/
-                  cpus = `sysctl -n hw.ncpu`.to_i
-              elsif host =~ /linux/
-                  cpus = `nproc`.to_i
-              else
-                  cpus = 2
-              end
-              vb.cpus   = cpus
-          else
-              vb.cpus   = server["cpus"]
-          end
+        if server["cpus"]
+          vb.cpus = server["cpus"]
         else
           vb.cpus = 1
         end

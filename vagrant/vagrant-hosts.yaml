@@ -1,7 +1,7 @@
 ---
 # |                              ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-machine_ram: &machine_ram "1024" # auto, 1024
-machine_cpu: &machine_cpu "1" # auto, 1
+machine_ram: &machine_ram 1024 # auto, 1024
+machine_cpu: &machine_cpu 1 # auto, 1
 vagrant_box: &vagrant_box "ubuntu/focal64"
 centos_box: &centos_box "bento/centos-8.2"
 # |
@@ -202,7 +202,7 @@ hosts:
       - source: "~/.ssh/id_rsa.pub"
         destination: "/home/vagrant/.ssh/authorized_keys"
   - name: node02.vagrant.test
-    box: *vagrant_box
+    box: bento/ubuntu-20.04
     box_check_update: false
     ram: *machine_ram
     cpus: *machine_cpu
