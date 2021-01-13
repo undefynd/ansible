@@ -7,5 +7,9 @@ elastic_repo: "deb https://artifacts.elastic.co/packages/7.x/apt stable main"
 elasticsearch_conf:
   path.data: /var/lib/elasticsearch
   path.logs: /var/log/elasticsearch
+  transport.host: localhost
+  transport.tcp.port: 9300
+  http.port: 9200
+  network.host: 0.0.0.0
 
 elasticsearch_plugin: {}

@@ -4,8 +4,8 @@ prometheus_dependencies:
   - wget
   - curl
 
-prometheus_download_url: "https://github.com/prometheus/prometheus/releases/download/v2.23.0/prometheus-2.23.0.linux-amd64.tar.gz"
-prometheus_checksum: sha256:0f54cefdb946852947e35d4db8cfce394911ff586486f927c3887db4183cb643
+prometheus_download_url: "https://github.com/prometheus/prometheus/releases/download/v2.24.0/prometheus-2.24.0.linux-amd64.tar.gz"
+prometheus_checksum: sha256:e54c37eb30879f5b6416b11a96217a1dfcff65e0eca1ab5ce7b783b940cfe0eb
 prometheus_directories:
   - "/etc/prometheus/"
   - "/etc/prometheus/rules"

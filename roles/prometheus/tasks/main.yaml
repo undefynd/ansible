@@ -100,8 +100,8 @@
   template:
     src: prometheus.yaml.j2
     dest: /etc/prometheus/prometheus.yml
-    owner: root
-    group: root
+    owner: prometheus
+    group: prometheus
     mode: 0644
   notify:
     - restart prometheus
