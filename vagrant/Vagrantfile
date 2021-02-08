@@ -6,7 +6,7 @@ require 'rbconfig'
 
 vagrant_hosts = ENV['VAGRANT_HOSTS'] ? ENV['VAGRANT_HOSTS'] : 'vagrant-hosts.yaml'
 servers = YAML.load_file(File.join(__dir__, vagrant_hosts))
-DEFAULT_BOX = "ubuntu/bionic64"
+DEFAULT_BOX = "ubuntu/focal64"
 
 VAGRANTFILE_API_VERSION = "2"
 
@@ -83,9 +83,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           vb.memory = 512
         end
         if server["cpus"]
-          vb.cpus = server["cpus"]
+          vb.cpus   = server["cpus"]
         else
-          vb.cpus = 1
+          vb.cpus = 2
         end
       end
 # Check if a specific hostname is set else set the name of the vm
@@ -164,7 +164,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
 
       # |
-      # | :::::: Folder Sync
+      # | :::::: Add HDD
       # |
       if server["disks"]
         server['disks'].each do |disks|
@@ -172,6 +172,30 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           name: disks['name'], 
           size: disks['size']
         end
+      end
+
+# |············································································
+# | SSH Key Deploy
+# |············································································
+$script = <<-'SCRIPT'
+for i in $(find /home/vagrant/.ssh -name *.pub); do
+  grep -f $i /home/vagrant/.ssh/authorized_keys
+  if [[ $? -eq 1 ]]; then
+    cat $i >> /home/vagrant/.ssh/authorized_keys
+  fi
+done
+SCRIPT
+
+      if server["ssh"]
+        for i in server["ssh"] do
+          if i.include? "/"
+            srv.vm.provision "file", source: "#{i}" , destination: "/home/vagrant/.ssh/"
+          else
+            srv.vm.provision "file", source: "~/.ssh/#{i}", destination: "/home/vagrant/.ssh/#{i}"
+          end 
+          srv.vm.boot_timeout = 240
+        end
+        srv.vm.provision "shell", inline: $script
       end
 
 # | ············································································
