@@ -1,6 +1,6 @@
 ---
 
-- hosts: netbox.vagrant.test
+- hosts: netbox
   become: yes
   user: vagrant
   roles:
