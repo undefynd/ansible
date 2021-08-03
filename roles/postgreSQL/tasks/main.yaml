@@ -8,7 +8,7 @@
 
 - name: "add postgresql ce repo"
   apt_repository:
-    filename: postgresql_stable
+    filename: pgdg
     repo: "{{ postgresql_repo_deb }}"
     state: present
 
