@@ -4,6 +4,6 @@
   become: yes
   user: vagrant
   roles:
-    - postgresql
+    - postgreSQL
     - redis
     - netbox
