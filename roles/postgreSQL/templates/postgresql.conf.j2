@@ -8,7 +8,7 @@
 {{ key }} = '{{ value }}'
 {% endif %}
 {% else %}
-{% if value is boolean %}
+{% if value | type_debug == "bool" %}
 {{ key }} = {{ value | ternary('on', 'off')}}
 {% else %}
 {{ key }} = {{ value  }}
