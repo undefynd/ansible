@@ -2,7 +2,7 @@
 
 - hosts: netbox
   become: yes
-  user: vagrant
+  user: root
   roles:
     - postgreSQL
     - redis
