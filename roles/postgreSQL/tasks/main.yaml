@@ -22,7 +22,7 @@
 - name: deploy postgres config file
   template:
     src: postgresql.conf.j2
-    dest: /etc/postgresql/12/main/postgresql.conf
+    dest: /etc/postgresql/13/main/postgresql.conf
     owner: postgres
     group: postgres
     mode: 0644
