@@ -3,7 +3,6 @@
 - name: "add postgresql repo key"
   apt_key:
     url: "{{ postgresql_gpg_key }}"
-    id: "{{ postgresql_repo_key_id }}"
     state: present
 
 - name: "add postgresql ce repo"
